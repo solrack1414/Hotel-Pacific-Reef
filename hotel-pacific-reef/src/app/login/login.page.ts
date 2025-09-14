@@ -7,15 +7,11 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],   
+  styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule
-  ]
+  imports: [IonicModule, CommonModule, FormsModule]
 })
-export class LoginPage  {
+export class LoginPage {
   username = '';
   password = '';
   errorMessage = '';
@@ -24,9 +20,7 @@ export class LoginPage  {
   constructor(private router: Router) {}
 
   login() {
-
     this.errorMessage = '';
-
 
     if (!this.username || !this.password) {
       this.errorMessage = 'Por favor, ingresa usuario y contraseña';
@@ -37,8 +31,7 @@ export class LoginPage  {
 
     setTimeout(() => {
       if (this.username === 'admin' && this.password === '1234') {
-        this.router.navigate(['/home']);
-        
+        this.router.navigate(['/home']);   // 👈 Aquí te lleva al Home
       } else {
         this.errorMessage = 'Usuario o contraseña incorrecta';
       }

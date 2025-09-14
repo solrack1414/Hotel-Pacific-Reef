@@ -1,22 +1,118 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Hotel Pacific</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/reservas">Reservas</ion-button>
-      <ion-button routerLink="/admin">Admin</ion-button>
-    </ion-buttons>
+<ion-header class="site-header">
+  <ion-toolbar color="light">
+    <div class="container navbar">
+      <div class="brand">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <span>Hotel Pacific Reef</span>
+      </div>
+
+      <!-- Menú derecha (estilo web) -->
+      <nav class="menu">
+        <a routerLink="/home" routerLinkActive="active">Home</a>
+        <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
+        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      </nav>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <h2>Bienvenido, {{ usuario }} 👋</h2>
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Explora habitaciones</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Gestiona tus reservas o revisa el panel de administración.</p>
-      <ion-button routerLink="/reservas" expand="block" color="primary">Ir a Reservas</ion-button>
-    </ion-card-content>
-  </ion-card>
+<ion-content [fullscreen]="true" class="site-content">
+
+  <!-- HERO desktop -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <h1>Bienvenido al Paraíso</h1>
+        <p>Frente al mar, con estilo y comodidad. Vive una experiencia inolvidable en la costa del Pacífico.</p>
+        <div class="actions">
+          <ion-button size="large" color="primary" routerLink="/reservas">Reservar ahora</ion-button>
+        </div>
+      </div>
+      <div class="hero-media">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/277705199.jpg?k=11eac548c3487cb7860253932fb51347c56b900ffeb0b317802fada379bd8b0f&o=&hp=1"
+             alt="Piscina frente al mar">
+      </div>
+    </div>
+  </section>
+
+  <!-- Servicios (cards 3 columnas desktop) -->
+  <section class="container section">
+    <h2 class="section-title">Servicios Exclusivos</h2>
+
+    <div class="cards">
+      <ion-card class="svc">
+        <img src="https://i.pinimg.com/originals/94/e4/ec/94e4ec33ec23e771e4d59cc844b6f0f1.jpg" alt="">
+        <ion-card-header>
+          <ion-card-title>Habitaciones de lujo</ion-card-title>
+          <ion-card-subtitle>Vista mar • Premium</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          Descanso superior con ropa de 500 hilos y amenities eco-friendly.
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="svc">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop" alt="">
+        <ion-card-header>
+          <ion-card-title>Gastronomía internacional</ion-card-title>
+          <ion-card-subtitle>Chef residente</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          Sabores locales y de autor con productos frescos del día.
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="svc">
+        <img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?q=80&w=1200&auto=format&fit=crop" alt="">
+        <ion-card-header>
+          <ion-card-title>Spa & Wellness</ion-card-title>
+          <ion-card-subtitle>Relajo total</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          Circuito de aguas, masajes y sauna para renovar energías.
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </section>
+
+  <!-- Sobre nosotros + Contacto (2 columnas desktop) -->
+  <section class="container section two-col">
+    <div class="col">
+      <h3>Sobre nosotros</h3>
+      <p>
+        Pacific Reef combina hospitalidad cálida con un diseño moderno junto al océano. Nuestro
+        equipo está enfocado en cada detalle para que tu estadía sea perfecta.
+      </p>
+      <ul class="bullets">
+        <li>Check-in express con QR</li>
+        <li>Wi-Fi de alta velocidad</li>
+        <li>Traslados y tours personalizados</li>
+      </ul>
+    </div>
+
+    <ion-card class="col contact">
+      <ion-card-header>
+        <ion-card-title>Contáctanos</ion-card-title>
+        <ion-card-subtitle>Estamos para ti 24/7</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>📍 Av. Costanera 123, Viña del Mar</p>
+        <p>📞 +56 9 1234 5678</p>
+        <ion-button expand="block" fill="outline" color="primary">Enviar mensaje</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Hotel Pacific Reef — Todos los derechos reservados</p>
+      <nav class="foot-menu">
+        <a routerLink="/home">Home</a>
+        <a routerLink="/reservas">Reservas</a>
+        <a routerLink="/admin">Admin</a>
+      </nav>
+    </div>
+  </footer>
+
 </ion-content>

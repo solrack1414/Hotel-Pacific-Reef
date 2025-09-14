@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 
 type Habitacion = { id:number; tipo:'single'|'doble'|'suite'; precioNoche:number; };
 type Reserva = {
@@ -12,12 +13,13 @@ type Reserva = {
 @Component({
   selector: 'app-reservas',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
   templateUrl: './reservas.page.html',
   styleUrls: ['./reservas.page.scss'],
 })
 export class ReservasPage {
-  desde = ''; hasta = ''; tipo = '';
+  rangoFechas: { from: string; to: string } | null = null; // ✅ un solo campo
+  tipo = '';
   noches = 0;
 
   rooms: Habitacion[] = [
@@ -35,20 +37,29 @@ export class ReservasPage {
     return Math.max(0, Math.round((+d2-+d1)/(1000*60*60*24)));
   }
 
+  calcularNoches(){
+    if(this.rangoFechas?.from && this.rangoFechas?.to){
+      this.noches = this.nochesEntre(this.rangoFechas.from, this.rangoFechas.to);
+    } else {
+      this.noches = 0;
+    }
+  }
+
   buscar(){
-    this.noches = this.nochesEntre(this.desde, this.hasta);
+    this.calcularNoches();
     this.filtradas = this.rooms.filter(r => !this.tipo || r.tipo===this.tipo);
   }
 
   reservar(h: Habitacion){
-    if(this.noches<=0){ return; }
+    if(this.noches<=0 || !this.rangoFechas?.from || !this.rangoFechas?.to){ return; }
+
     const total = h.precioNoche * this.noches;
     const anticipo = Math.round(total * 0.30);
     const r: Reserva = {
       id: Date.now(),
       habitacionId: h.id,
-      desde: this.desde,
-      hasta: this.hasta,
+      desde: this.rangoFechas.from,
+      hasta: this.rangoFechas.to,
       noches: this.noches,
       total, anticipo, saldo: total - anticipo
     };

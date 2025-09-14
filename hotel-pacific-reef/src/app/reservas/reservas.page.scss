@@ -1,27 +1,119 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+/* Contenedor principal tipo web */
+.container {
+  width: min(1140px, 92vw);
+  margin-inline: auto;
 }
 
-#container strong {
+/* Header y menú (mismo estilo que Home/Admin) */
+.site-header ion-toolbar {
+  --background: #ffffff;
+  --color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+}
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+.brand ion-icon {
   font-size: 20px;
-  line-height: 26px;
+  color: var(--ion-color-primary);
 }
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+.menu {
+  display: flex;
+  gap: 18px;
 }
-
-#container a {
+.menu a {
+  color: #374151;
   text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.menu a.active,
+.menu a:hover {
+  background: #f3f4f6;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(180deg, #f7fafc, #fff);
+  padding: 32px 0;
+  border-bottom: 1px solid #eef2f7;
+  margin-bottom: 24px;
+}
+.hero .hero-copy {
+  text-align: center;
+}
+.hero h1 {
+  font-size: clamp(28px, 3.5vw, 40px);
+  margin: 0 0 12px;
+}
+.hero p {
+  color: #4b5563;
+}
+
+/* Sección reservas */
+ion-card {
+  margin: 20px auto;
+  max-width: 1000px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+ion-card-header {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+ion-item {
+  --background: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Botón buscar */
+ion-button {
+  margin-top: 12px;
+}
+
+/* Lista de habitaciones */
+ion-list {
+  margin-top: 8px;
+}
+
+ion-item h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+ion-badge {
+  margin-left: 8px;
+}
+
+/* Mensaje vacío */
+ion-text {
+  display: block;
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Footer */
+.footer {
+  background: #0f172a;
+  color: #cbd5e1;
+  padding: 18px 0;
+  margin-top: 24px;
+  text-align: center;
 }
