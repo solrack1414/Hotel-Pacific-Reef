@@ -1,38 +1,22 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Hotel Pacific Reef</ion-title>
+    <ion-title>Hotel Pacific</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/reservas">Reservas</ion-button>
+      <ion-button routerLink="/admin">Admin</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
-  <!-- Bienvenida -->
-  <h2>Bienvenido 👋</h2>
-  <p>Reserva tu habitación con un <b>30% de anticipo</b> y disfruta de un check-in rápido con QR.</p>
-
-  <!-- Buscador simple -->
-  <ion-item>
-    <ion-label position="stacked">Check-in</ion-label>
-    <ion-datetime presentation="date" [(ngModel)]="desde"></ion-datetime>
-  </ion-item>
-
-  <ion-item>
-    <ion-label position="stacked">Check-out</ion-label>
-    <ion-datetime presentation="date" [(ngModel)]="hasta"></ion-datetime>
-  </ion-item>
-
-  <ion-button expand="block" (click)="buscar()">Buscar habitaciones</ion-button>
-
-  <!-- Resultados -->
-  <ion-list *ngIf="habitaciones.length">
-    <ion-item *ngFor="let h of habitaciones">
-      <ion-label>
-        <h2>{{ h.tipo | uppercase }}</h2>
-        <p>{{ h.descripcion }}</p>
-        <ion-badge color="primary">{{ h.precio | currency:'CLP' }}</ion-badge>
-      </ion-label>
-      <ion-button (click)="reservar(h)">Reservar</ion-button>
-    </ion-item>
-  </ion-list>
-
+  <h2>Bienvenido, {{ usuario }} 👋</h2>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Explora habitaciones</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Gestiona tus reservas o revisa el panel de administración.</p>
+      <ion-button routerLink="/reservas" expand="block" color="primary">Ir a Reservas</ion-button>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

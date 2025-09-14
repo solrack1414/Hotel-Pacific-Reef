@@ -24,10 +24,10 @@ export class LoginPage  {
   constructor(private router: Router) {}
 
   login() {
-    // Reset error message
+
     this.errorMessage = '';
 
-    // Validar que los campos no estén vacíos
+
     if (!this.username || !this.password) {
       this.errorMessage = 'Por favor, ingresa usuario y contraseña';
       return;
@@ -35,7 +35,6 @@ export class LoginPage  {
 
     this.isLoading = true;
 
-    // Simulamos una demora de red con setTimeout
     setTimeout(() => {
       if (this.username === 'admin' && this.password === '1234') {
         this.router.navigate(['/home']);
