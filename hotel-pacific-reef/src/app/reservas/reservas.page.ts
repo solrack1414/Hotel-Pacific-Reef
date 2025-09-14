@@ -1,10 +1,16 @@
 import { Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-reservas',
   templateUrl: './reservas.page.html',
   styleUrls: ['./reservas.page.scss'],
-  standalone: true
+  standalone: true,
+  imports: [
+    IonicModule,
+    CommonModule  // necesario para *ngFor
+  ]
 })
 export class ReservasPage {
   reservas = [

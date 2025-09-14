@@ -1,20 +1,38 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Hotel Pacific Reef</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
 
-  <div id="container">
-    <strong>PAGINA DE HOTEL</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <!-- Bienvenida -->
+  <h2>Bienvenido 👋</h2>
+  <p>Reserva tu habitación con un <b>30% de anticipo</b> y disfruta de un check-in rápido con QR.</p>
+
+  <!-- Buscador simple -->
+  <ion-item>
+    <ion-label position="stacked">Check-in</ion-label>
+    <ion-datetime presentation="date" [(ngModel)]="desde"></ion-datetime>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Check-out</ion-label>
+    <ion-datetime presentation="date" [(ngModel)]="hasta"></ion-datetime>
+  </ion-item>
+
+  <ion-button expand="block" (click)="buscar()">Buscar habitaciones</ion-button>
+
+  <!-- Resultados -->
+  <ion-list *ngIf="habitaciones.length">
+    <ion-item *ngFor="let h of habitaciones">
+      <ion-label>
+        <h2>{{ h.tipo | uppercase }}</h2>
+        <p>{{ h.descripcion }}</p>
+        <ion-badge color="primary">{{ h.precio | currency:'CLP' }}</ion-badge>
+      </ion-label>
+      <ion-button (click)="reservar(h)">Reservar</ion-button>
+    </ion-item>
+  </ion-list>
+
 </ion-content>
