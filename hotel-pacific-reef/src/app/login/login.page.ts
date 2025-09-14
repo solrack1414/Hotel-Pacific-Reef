@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+  styleUrls: ['./login.page.scss'],   
   standalone: true,
   imports: [
     IonicModule,
@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
     FormsModule
   ]
 })
-export class LoginPage {
+export class LoginPage  {
   username = '';
   password = '';
   errorMessage = '';
@@ -38,7 +38,8 @@ export class LoginPage {
     // Simulamos una demora de red con setTimeout
     setTimeout(() => {
       if (this.username === 'admin' && this.password === '1234') {
-        this.router.navigate(['/Admin-modif']);
+        this.router.navigate(['/home']);
+        
       } else {
         this.errorMessage = 'Usuario o contraseña incorrecta';
       }

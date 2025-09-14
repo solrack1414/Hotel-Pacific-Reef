@@ -124,8 +124,8 @@ body {
 }
 
 .btn-login {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    color: white;
+    background-color: #007bff; 
+    color: #fff;
     border: none;
     border-radius: 8px;
     padding: 14px;
@@ -138,8 +138,7 @@ body {
 }
 
 .btn-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(26, 75, 140, 0.2);
+  background-color: #0056b3;   /* azul más oscuro al pasar el mouse */
 }
 
 .footer {

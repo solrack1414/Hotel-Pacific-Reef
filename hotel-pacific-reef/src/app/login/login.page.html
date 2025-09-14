@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Pacific - Iniciar Sesión</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.page.scss">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -41,7 +41,9 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn-login">Iniciar Sesión</button>
+                    <button type="submit" class="btn-login" (click)="login()" [disabled]="isLoading">
+                    Iniciar Sesión
+                    </button>
                     
                     <div class="footer">
                         <p>¿No tienes cuenta? <a href="#">Regístrate aquí</a></p>
