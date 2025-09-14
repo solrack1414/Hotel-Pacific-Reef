@@ -1,0 +1,13 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Reservas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let reserva of reservas">
+      {{ reserva.nombre }} - {{ reserva.fecha }}
+    </ion-item>
+  </ion-list>
+</ion-content>
