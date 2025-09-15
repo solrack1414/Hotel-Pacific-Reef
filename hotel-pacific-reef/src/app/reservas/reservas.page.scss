@@ -1,119 +1,109 @@
-/* Contenedor principal tipo web */
+
 .container {
   width: min(1140px, 92vw);
   margin-inline: auto;
 }
 
-/* Header y menú (mismo estilo que Home/Admin) */
 .site-header ion-toolbar {
   --background: #ffffff;
   --color: #111827;
   border-bottom: 1px solid #e5e7eb;
 }
 .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   min-height: 64px;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-}
-.brand ion-icon {
-  font-size: 20px;
-  color: var(--ion-color-primary);
-}
-.menu {
-  display: flex;
-  gap: 18px;
-}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.brand ion-icon { font-size: 20px; color: var(--ion-color-primary); }
+.menu { display: flex; align-items:center; gap: 18px; }
 .menu a {
-  color: #374151;
-  text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 10px;
+  color: #374151; text-decoration: none; padding: 8px 12px; border-radius: 10px;
 }
-.menu a.active,
-.menu a:hover {
-  background: #f3f4f6;
-}
+.menu a.active, .menu a:hover { background: #f3f4f6; }
 
-/* Hero */
-.hero {
-  background: linear-gradient(180deg, #f7fafc, #fff);
-  padding: 32px 0;
-  border-bottom: 1px solid #eef2f7;
-  margin-bottom: 24px;
-}
-.hero .hero-copy {
-  text-align: center;
-}
-.hero h1 {
-  font-size: clamp(28px, 3.5vw, 40px);
-  margin: 0 0 12px;
-}
-.hero p {
-  color: #4b5563;
-}
 
-/* Sección reservas */
+.user-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 6px 10px; border-radius: 999px;
+  background: #eef2ff; color: #3730a3; font-size: 13px; border: 1px solid #e5e7eb;
+}
+.menu a.logout {
+  color: #dc2626; font-weight: 600; border: 1px solid transparent; transition: all .2s ease;
+}
+.menu a.logout:hover { background: #fee2e2; border-color: #fecaca; }
+
+
+.site-content { --background: #f7fafc; }
+
+
 ion-card {
   margin: 20px auto;
   max-width: 1000px;
   border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  overflow: hidden;
 }
-
 ion-card-header {
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
-
-ion-card-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
 ion-item {
   --background: #fff;
   border-radius: 8px;
   margin-bottom: 12px;
 }
 
-/* Botón buscar */
-ion-button {
-  margin-top: 12px;
+
+.room-item {
+  align-items: flex-start;
+  gap: 10px;
+}
+.thumb {
+  --size: 120px;
+  width: var(--size); height: var(--size);
+  overflow: hidden; border-radius: 12px; border: 1px solid rgba(0,0,0,.06); flex-shrink: 0;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.line { display:flex; align-items:center; gap:10px; margin: 6px 0; }
+
+.desc { color:#4b5563; margin: 4px 0 6px; }
+
+.amenities {
+  display:flex; flex-wrap:wrap; gap:8px; margin: 4px 0 8px;
 }
 
-/* Lista de habitaciones */
-ion-list {
-  margin-top: 8px;
+.mini-gallery {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(94px, 120px);
+  gap: 10px; margin-top: 6px; overflow-x: auto; padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
 }
-
-ion-item h2 {
-  font-size: 1rem;
-  font-weight: 600;
+.mini-gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.06);
+  scroll-snap-align: start;
+  transition: transform .15s ease, filter .15s ease;
 }
+.mini-gallery img:hover { transform: translateY(-2px); filter: brightness(1.05); }
 
-ion-badge {
-  margin-left: 8px;
-}
-
-/* Mensaje vacío */
-ion-text {
-  display: block;
-  margin: 20px 0;
-  text-align: center;
-}
-
-/* Footer */
 .footer {
-  background: #0f172a;
-  color: #cbd5e1;
-  padding: 18px 0;
-  margin-top: 24px;
-  text-align: center;
+  background: #0f172a; color: #cbd5e1; padding: 18px 0; margin-top: 24px;
+}
+.footer .container { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+
+
+
+
+
+@media (max-width: 980px) {
+  .thumb { --size: 110px; }
+}
+@media (max-width: 640px) {
+  .thumb { --size: 96px; }
 }

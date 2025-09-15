@@ -6,11 +6,15 @@
         <span>Hotel Pacific Reef</span>
       </div>
 
-      <!-- Menú a la derecha -->
+      <!-- Menú derecha -->
       <nav class="menu">
         <a routerLink="/home" routerLinkActive="active">Home</a>
         <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
-        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+        <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+        <span *ngIf="currentEmail" class="user-pill" title="{{ currentEmail }}">
+          Hola, <b>{{ currentEmail }}</b>
+        </span>
+        <a href="#" class="logout" (click)="logout($event)">Cerrar sesión</a>
       </nav>
     </div>
   </ion-toolbar>
@@ -18,107 +22,110 @@
 
 <ion-content [fullscreen]="true" class="site-content ion-padding">
 
-  <!-- BUSCADOR -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Buscar disponibilidad</ion-card-title>
-      <ion-card-subtitle>Selecciona rango de fechas y tipo de habitación</ion-card-subtitle>
+      <ion-card-subtitle>Mínimo 5 días de anticipación</ion-card-subtitle>
     </ion-card-header>
 
     <ion-card-content>
       <ion-grid>
         <ion-row>
-          <ion-col sizeMd="6" size="12">
-            <ion-item>
-              <ion-label position="stacked">Rango de fechas</ion-label>
-              <!-- Un solo calendario -->
+          <ion-col sizeMd="4" size="12">
+            <ion-item lines="full">
+              <ion-label position="stacked">Llegada</ion-label>
               <ion-datetime
-                presentation="date-range"
-                [(ngModel)]="rangoFechas"
-                (ionChange)="calcularNoches()">
+                presentation="date"
+                [(ngModel)]="llegada"
+                [min]="minDate"
+                [max]="maxDate"
+                (ionChange)="onFechaChange()">
               </ion-datetime>
             </ion-item>
           </ion-col>
 
-          <ion-col sizeMd="6" size="12">
-            <ion-item>
+          <ion-col sizeMd="4" size="12">
+            <ion-item lines="full">
+              <ion-label position="stacked">Salida</ion-label>
+              <ion-datetime
+                presentation="date"
+                [(ngModel)]="salida"
+                [min]="llegada ? llegada : minDate"
+                [max]="maxDate"
+                (ionChange)="onFechaChange()">
+              </ion-datetime>
+            </ion-item>
+          </ion-col>
+
+          <ion-col sizeMd="4" size="12">
+            <ion-item lines="full">
               <ion-label position="stacked">Tipo de habitación</ion-label>
-              <ion-select [(ngModel)]="tipo" (ionChange)="buscar()">
+              <ion-select [(ngModel)]="tipoSeleccionado" (ionChange)="filtrar()">
                 <ion-select-option value="">Cualquiera</ion-select-option>
-                <ion-select-option value="single">Single</ion-select-option>
-                <ion-select-option value="doble">Doble</ion-select-option>
-                <ion-select-option value="suite">Suite</ion-select-option>
+                <ion-select-option value="basic">Básica</ion-select-option>
+                <ion-select-option value="medium">Medium</ion-select-option>
+                <ion-select-option value="premium">Premium</ion-select-option>
               </ion-select>
             </ion-item>
           </ion-col>
         </ion-row>
       </ion-grid>
 
-      <ion-button expand="block" (click)="buscar()" color="primary">
-        <ion-icon slot="start" name="search-outline"></ion-icon>
-        Buscar
-      </ion-button>
-
-      <ion-note color="medium" *ngIf="noches > 0">
+      <ion-text color="danger" *ngIf="errorMsg">{{ errorMsg }}</ion-text>
+      <ion-note color="medium" *ngIf="!errorMsg && noches>0">
         Noches: <b>{{ noches }}</b>
       </ion-note>
     </ion-card-content>
   </ion-card>
 
-  <!-- RESULTADOS -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Habitaciones disponibles</ion-card-title>
     </ion-card-header>
 
     <ion-card-content>
-      <ion-list *ngIf="filtradas.length; else vacio">
-        <ion-item *ngFor="let h of filtradas">
+      <ion-list *ngIf="filtradas.length; else nores">
+        <ion-item *ngFor="let h of filtradas" class="room-item">
+          <ion-thumbnail slot="start" class="thumb">
+            <img [src]="h.imgs[0]" alt="Foto {{h.nombre}}">
+          </ion-thumbnail>
+
           <ion-label>
-            <h2>Hab. {{ h.id }} — {{ h.tipo | uppercase }}</h2>
-            <ion-badge color="primary">{{ currency(h.precioNoche) }}</ion-badge>
-            <ion-note color="medium" *ngIf="noches>0">
-              × {{ noches }} = <b>{{ currency(h.precioNoche*noches) }}</b>
-            </ion-note>
+            <h2>{{ h.nombre }}</h2>
+            <div class="line">
+              <ion-badge color="primary">{{ currency(h.precioNoche) }} / noche</ion-badge>
+              <ion-note color="medium">• {{ h.camas }} • Cap: {{ h.capacidad }}</ion-note>
+            </div>
+            <p class="desc">{{ h.descripcion }}</p>
+
+            <div class="amenities">
+              <ion-chip *ngFor="let a of h.amenities" [outline]="true" color="medium">{{ a }}</ion-chip>
+            </div>
+
+            <div class="mini-gallery">
+              <img *ngFor="let img of h.imgs; let i=index"
+                   [src]="img"
+                   [alt]="h.nombre + ' ' + (i+1)"
+                   loading="lazy"
+                   decoding="async">
+            </div>
           </ion-label>
-          <ion-button [disabled]="noches<=0" (click)="reservar(h)">Reservar</ion-button>
+
+          <ion-button [disabled]="noches<=0 || !!errorMsg" (click)="reservar(h)" slot="end">
+            Elegir {{ h.tipo | titlecase }}
+          </ion-button>
         </ion-item>
       </ion-list>
 
-      <ng-template #vacio>
-        <ion-text color="medium">No hay resultados para las fechas seleccionadas.</ion-text>
+      <ng-template #nores>
+        <ion-text color="medium">Selecciona llegada y salida para ver disponibilidad.</ion-text>
       </ng-template>
     </ion-card-content>
   </ion-card>
 
-  <!-- RESERVAS LOCALES -->
-  <ion-card *ngIf="reservas.length">
-    <ion-card-header>
-      <ion-card-title>Mis reservas</ion-card-title>
-      <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngFor="let r of reservas">
-          <ion-label>
-            <h3>#{{ r.id }} • Hab. {{ r.habitacionId }}</h3>
-            <p>{{ r.desde }} → {{ r.hasta }} • {{ r.noches }} noches</p>
-            <p>
-              Total: <b>{{ currency(r.total) }}</b> •
-              Anticipo: <b>{{ currency(r.anticipo) }}</b> •
-              Saldo: <b>{{ currency(r.saldo) }}</b>
-            </p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
-      <p>© 2025 Hotel Pacific Reef — Reservas</p>
+      <p>© 2025 Hotel Pacific Reef — Todos los derechos reservados</p>
     </div>
   </footer>
 </ion-content>

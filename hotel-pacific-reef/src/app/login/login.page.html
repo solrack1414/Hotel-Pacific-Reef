@@ -1,60 +1,95 @@
-<ion-content class="login-bg">
+<ion-content class="login-bg" [fullscreen]="true">
+  <!-- overlay opcional (oscurece un poco la imagen para que el card destaque) -->
+  <div class="bg-overlay"></div>
 
-  <div class="login-card">
-    <!-- Panel izquierdo -->
-    <section class="left">
+  <!-- wrapper para centrar el card -->
+  <div class="login-wrap">
+    <div class="card">
+
       <div class="brand">
         <div class="logo">H</div>
-        <div class="brand-text">
-          <h3>HOTEL<br><span>PACIFIC REEF</span></h3>
+        <div class="txt">
+          <b>HOTEL</b><span>PACIFIC REEF</span>
         </div>
       </div>
 
-      <div class="left-body">
-        <h4>¡La mejor opción que puedes elegir!</h4>
-        <p>Ingresa tus datos y revisa nuestras ofertas.</p>
-      </div>
+      <h2>Inicia sesión</h2>
 
-      <footer class="left-foot">
-        <small>© 2025. All Rights Reserved.</small>
-      </footer>
-    </section>
-
-    <!-- Panel derecho -->
-    <section class="right">
-      <h2 class="title">Inicia sesión en tu cuenta</h2>
-
-      <ion-item lines="none" class="field">
-        <ion-icon name="person-outline" slot="end"></ion-icon>
+      <ion-item lines="none" class="field field-lg">
         <ion-input
-          placeholder="ejemplo"
-          [(ngModel)]="username">
+          type="email"
+          placeholder="correo@ejemplo.com"
+          [(ngModel)]="email"
+          autocomplete="email"
+          inputmode="email">
         </ion-input>
+        <span slot="end" class="suffix-badge" aria-hidden="true">
+          <ion-icon name="mail-outline"></ion-icon>
+        </span>
       </ion-item>
 
-      <ion-item lines="none" class="field">
-        <ion-icon name="lock-closed-outline" slot="end"></ion-icon>
+      <ion-item lines="none" class="field field-lg">
         <ion-input
-          type="password"
-          placeholder="••••••••"
-          [(ngModel)]="password">
+          [type]="showPass ? 'text' : 'password'"
+          placeholder="Contraseña"
+          [(ngModel)]="password"
+          autocomplete="current-password">
         </ion-input>
+        <button class="suffix-badge btn-eye" type="button" slot="end" (click)="showPass=!showPass"
+                [attr.aria-label]="showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <ion-icon [name]="showPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
       </ion-item>
 
-      <div class="divider"></div>
-
-      <ion-button expand="block" color="success" class="signin" (click)="login()" [disabled]="isLoading">
+      <ion-button expand="block" class="btn-primary" (click)="onLogin()" [disabled]="isLoading">
         <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
-        <span *ngIf="!isLoading">Ingresar</span>
+        <span *ngIf="!isLoading">INGRESAR</span>
       </ion-button>
 
-      <a class="forgot" href="#" (click)="$event.preventDefault()">¿Olvidaste tu contraseña?</a>
-
-      <div class="badges">
-        <img src="https://dummyimage.com/60x30/2d7656/ffffff&text=Secure" alt="secure">
-        <img src="https://dummyimage.com/60x30/2d7656/ffffff&text=SSL" alt="ssl">
+      <div class="links">
+        <a (click)="openRegister($event)">Crear cuenta</a>
+        <a (click)="forgot($event)">¿Olvidaste tu contraseña?</a>
       </div>
-    </section>
+
+      <small class="foot">© 2025 Hotel Pacific Reef</small>
+    </div>
   </div>
 
+  <!-- Modal registro (igual que tenías) -->
+  <ion-modal [isOpen]="registerOpen" (willDismiss)="registerOpen=false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Crear cuenta</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="registerOpen=false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-item lines="none" class="field field-lg">
+          <ion-input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="regEmail"></ion-input>
+          <span slot="end" class="suffix-badge"><ion-icon name="mail-outline"></ion-icon></span>
+        </ion-item>
+
+        <ion-item lines="none" class="field field-lg">
+          <ion-input [type]="regShowPass ? 'text' : 'password'" placeholder="Contraseña (6+)" [(ngModel)]="regPass"></ion-input>
+          <button class="suffix-badge btn-eye" type="button" slot="end" (click)="regShowPass=!regShowPass">
+            <ion-icon [name]="regShowPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </ion-item>
+
+        <ion-item lines="none" class="field field-lg">
+          <ion-input [type]="regShowPass ? 'text' : 'password'" placeholder="Repetir contraseña" [(ngModel)]="regPass2"></ion-input>
+          <span slot="end" class="suffix-badge"><ion-icon name="lock-closed-outline"></ion-icon></span>
+        </ion-item>
+
+        <ion-button expand="block" color="success" class="btn-primary alt" (click)="onRegister()" [disabled]="isLoading">
+          <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+          <span *ngIf="!isLoading">Crear cuenta</span>
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>

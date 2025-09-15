@@ -6,19 +6,22 @@
         <span>Hotel Pacific Reef</span>
       </div>
 
-      <!-- Menú derecha (estilo web) -->
+      <!-- Menú derecha -->
       <nav class="menu">
         <a routerLink="/home" routerLinkActive="active">Home</a>
         <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
-        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+        <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+        <span *ngIf="currentEmail" class="user-pill" [title]="currentEmail">
+          Hola, <b>{{ currentEmail }}</b>
+        </span>
+        <a href="#" class="logout" (click)="logout($event)" aria-label="Cerrar sesión">Cerrar sesión</a>
+        
       </nav>
     </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="site-content">
-
-  <!-- HERO desktop -->
   <section class="hero">
     <div class="container hero-inner">
       <div class="hero-copy">
@@ -35,7 +38,7 @@
     </div>
   </section>
 
-  <!-- Servicios (cards 3 columnas desktop) -->
+
   <section class="container section">
     <h2 class="section-title">Servicios Exclusivos</h2>
 
@@ -75,7 +78,7 @@
     </div>
   </section>
 
-  <!-- Sobre nosotros + Contacto (2 columnas desktop) -->
+
   <section class="container section two-col">
     <div class="col">
       <h3>Sobre nosotros</h3>
@@ -107,12 +110,6 @@
   <footer class="footer">
     <div class="container">
       <p>© 2025 Hotel Pacific Reef — Todos los derechos reservados</p>
-      <nav class="foot-menu">
-        <a routerLink="/home">Home</a>
-        <a routerLink="/reservas">Reservas</a>
-        <a routerLink="/admin">Admin</a>
-      </nav>
     </div>
   </footer>
-
 </ion-content>

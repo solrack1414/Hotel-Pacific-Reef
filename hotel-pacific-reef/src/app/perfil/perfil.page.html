@@ -1,0 +1,79 @@
+<ion-header class="site-header">
+  <ion-toolbar color="light">
+    <div class="container navbar">
+      <div class="brand">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <span>Hotel Pacific Reef</span>
+      </div>
+
+      <nav class="menu">
+        <a routerLink="/home" routerLinkActive="active">Home</a>
+        <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
+        <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+        <span *ngIf="email" class="user-pill" [title]="email">Hola, <b>{{ email }}</b></span>
+        <a href="#" class="logout" (click)="logout($event)">Cerrar sesión</a>
+      </nav>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="site-content ion-padding page-content">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Mi perfil</ion-card-title>
+      <ion-card-subtitle>Datos de tu cuenta</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item lines="full">
+          <ion-label>
+            <h2>Correo</h2>
+            <p>{{ email }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+
+
+
+
+
+  
+  <!-- Mis reservas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Mis reservas</ion-card-title>
+      <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-list *ngIf="reservas.length; else sinReservas">
+        <ion-item *ngFor="let r of reservas" class="res-item">
+          <ion-label>
+            <h3>#{{ r.id }} • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})</h3>
+            <p>🗓 {{ r.llegada }} → {{ r.salida }} • {{ r.noches }} noche(s)</p>
+            <p>💵 {{ currency(r.precioNoche) }} / noche • Total: <b>{{ currency(r.total) }}</b></p>
+          </ion-label>
+          <ion-button fill="clear" color="danger" slot="end" (click)="borrarReserva(r)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+
+      <ng-template #sinReservas>
+        <ion-text color="medium">
+          Aún no tienes reservas. Ve a <a routerLink="/reservas">Reservas</a> para crear una.
+        </ion-text>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Hotel Pacific Reef — Todos los derechos reservados</p>
+    </div>
+  </footer>
+</ion-content>

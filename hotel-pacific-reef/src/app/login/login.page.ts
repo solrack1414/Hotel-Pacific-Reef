@@ -1,41 +1,87 @@
-import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { AuthDbService } from '../services/auth-db.service';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss']
 })
-export class LoginPage {
-  username = '';
+export class LoginPage implements OnInit {
+  email = '';
   password = '';
-  errorMessage = '';
+  showPass = false;
   isLoading = false;
 
-  constructor(private router: Router) {}
+  registerOpen = false;
+  regEmail = '';
+  regPass = '';
+  regPass2 = '';
+  regShowPass = false;
 
-  login() {
-    this.errorMessage = '';
+  constructor(
+    private auth: AuthDbService,
+    private toast: ToastController,
+    private nav: NavController
+  ) {}
 
-    if (!this.username || !this.password) {
-      this.errorMessage = 'Por favor, ingresa usuario y contraseña';
-      return;
+  async ngOnInit() {
+    await this.auth.init(); 
+    const logged = this.auth.getSessionEmail();
+    if (logged) this.nav.navigateRoot('/home');
+  }
+
+  async onLogin() {
+    if (!this.validEmail(this.email) || !this.password) {
+      return this.msg('Completa correo y contraseña válidos.');
     }
+    this.isLoading = true;
+    try {
+      const ok = await this.auth.login(this.email, this.password);
+      if (!ok) return this.msg('Credenciales inválidas.');
+      this.msg('¡Bienvenido!', 'success');
+      this.nav.navigateRoot('/home');
+    } catch (e:any) {
+      this.msg(e?.message || 'Error al iniciar sesión.');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  openRegister(ev: Event) { ev.preventDefault(); this.registerOpen = true; }
+
+  async onRegister() {
+    if (!this.validEmail(this.regEmail)) return this.msg('Correo inválido.');
+    if ((this.regPass || '').length < 6) return this.msg('La contraseña debe tener 6+ caracteres.');
+    if (this.regPass !== this.regPass2) return this.msg('Las contraseñas no coinciden.');
 
     this.isLoading = true;
-
-    setTimeout(() => {
-      if (this.username === 'admin' && this.password === '1234') {
-        this.router.navigate(['/home']);   // 👈 Aquí te lleva al Home
-      } else {
-        this.errorMessage = 'Usuario o contraseña incorrecta';
-      }
+    try {
+      await this.auth.register(this.regEmail, this.regPass);
+      this.msg('Cuenta creada. Ahora puedes iniciar sesión.', 'success');
+      this.registerOpen = false;
+      this.email = this.regEmail;
+      this.password = this.regPass;
+      this.regEmail = this.regPass = this.regPass2 = '';
+    } catch (e:any) {
+      this.msg(e?.message || 'No se pudo crear la cuenta.');
+    } finally {
       this.isLoading = false;
-    }, 1000);
+    }
+  }
+
+  forgot(ev: Event) { ev.preventDefault(); this.msg('Recuperación disponible pronto.'); }
+
+  private validEmail(v: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+  }
+
+  private async msg(text: string, color: 'danger'|'success'|'medium'='danger') {
+    const t = await this.toast.create({ message: text, duration: 1800, color, position: 'bottom' });
+    await t.present();
   }
 }

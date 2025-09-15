@@ -78,3 +78,29 @@
 @media (max-width: 640px) {
   .cards { grid-template-columns: 1fr; }
 }
+
+
+
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;         /* evita que rompa el layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef2ff;      /* lila suave */
+  color: #3730a3;           /* indigo-800 */
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Link de Cerrar sesión destacado */
+.menu a.logout { color:#dc2626; font-weight:600; border:1px solid transparent; transition:all .2s ease; }
+.menu a.logout:hover { background:#fee2e2; border-color:#fecaca; }
+.menu a.logout:focus { outline: 2px solid #fecaca; }
+
+/* Asegura espacio entre items cuando se agrega el pill */
+.menu { display: flex; align-items: center; gap: 18px; }
