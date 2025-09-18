@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { LoginPage } from './login.page';
 import { AuthDbService } from '../services/auth-db.service';
 
-// Mock simple para AuthDbService
+
 class MockAuthDbService {
   init = jasmine.createSpy('init').and.returnValue(Promise.resolve());
   login = jasmine.createSpy('login').and.callFake((email: string, pass: string) => {
@@ -62,7 +62,6 @@ describe('LoginPage', () => {
     component.regPass = 'abcdef';
     component.regPass2 = 'xyz';
     await component.onRegister();
-    // no se llama register por error de validación
     expect(authService.register).not.toHaveBeenCalled();
   });
 });

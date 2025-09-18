@@ -35,40 +35,34 @@
     </ion-card-content>
   </ion-card>
 
-
-
-
-
-
-  
   <!-- Mis reservas -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Mis reservas</ion-card-title>
-      <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
-    </ion-card-header>
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Mis reservas</ion-card-title>
+    <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
+  </ion-card-header>
 
-    <ion-card-content>
-      <ion-list *ngIf="reservas.length; else sinReservas">
-        <ion-item *ngFor="let r of reservas" class="res-item">
-          <ion-label>
-            <h3>#{{ r.id }} • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})</h3>
-            <p>🗓 {{ r.llegada }} → {{ r.salida }} • {{ r.noches }} noche(s)</p>
-            <p>💵 {{ currency(r.precioNoche) }} / noche • Total: <b>{{ currency(r.total) }}</b></p>
-          </ion-label>
-          <ion-button fill="clear" color="danger" slot="end" (click)="borrarReserva(r)">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </ion-list>
+  <ion-card-content>
+    <ion-list *ngIf="reservas && reservas.length > 0; else sinReservas">
+      <ion-item *ngFor="let r of reservas; trackBy: trackById" class="res-item">
+        <ion-label>
+          <h3>#{{ r.id }} • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})</h3>
+          <p>🗓 {{ (r.llegada || '').slice(0,10) }} → {{ (r.salida || '').slice(0,10) }} • {{ r.noches }} noche(s)</p>
+          <p>💵 {{ currency(r.precioNoche) }} / noche • Total: <b>{{ currency(r.total) }}</b></p>
+        </ion-label>
+        <ion-button fill="clear" color="danger" slot="end" (click)="borrarReserva(r)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
 
-      <ng-template #sinReservas>
-        <ion-text color="medium">
-          Aún no tienes reservas. Ve a <a routerLink="/reservas">Reservas</a> para crear una.
-        </ion-text>
-      </ng-template>
-    </ion-card-content>
-  </ion-card>
+    <ng-template #sinReservas>
+      <ion-text color="medium">
+        Aún no tienes reservas. Ve a <a routerLink="/reservas">Reservas</a> para crear una.
+      </ion-text>
+    </ng-template>
+  </ion-card-content>
+</ion-card>
 
   <!-- Footer -->
   <footer class="footer">

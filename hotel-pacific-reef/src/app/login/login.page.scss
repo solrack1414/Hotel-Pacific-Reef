@@ -1,35 +1,27 @@
-/* HAZ QUE ION-CONTENT USE TU FONDO: */
 .login-bg {
-  /* 1) Anula el fondo interno de ion-content */
   --background: transparent;
-
-  /* 2) Pon tu imagen aquí */
   background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop')
               no-repeat center center / cover;
-
   position: relative;
   min-height: 100vh;
 }
 
-/* Capa oscura para contraste (encima de la imagen, debajo del card) */
 .bg-overlay {
   position: absolute; inset: 0;
   background: rgba(0,0,0,0.35);
   z-index: 0;
 }
 
-/* Wrapper que centra el card siempre */
 .login-wrap {
   position: relative;
-  z-index: 1;          /* sobre el overlay */
-  min-height: 100vh;   /* ocupa alto completo */
+  z-index: 1;
+  min-height: 100vh;
   display: flex;
-  align-items: center; /* centro vertical */
-  justify-content: center; /* centro horizontal */
+  align-items: center;
+  justify-content: center;
   padding: 24px;
 }
 
-/* TARJETA */
 .card {
   width: min(440px, 92vw);
   background: #fff;
@@ -41,7 +33,6 @@
     0 2px 0 rgba(255,255,255,.8) inset;
 }
 
-/* Marca / logotipo */
 .brand {
   display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
   .logo {
@@ -58,7 +49,6 @@
 
 h2 { margin: 8px 2px 12px; font-size: 20px; color:#0f172a; }
 
-/* Campos grandes redondeados */
 .field {
   --background: #fff;
   background: #fff;
@@ -70,7 +60,6 @@ h2 { margin: 8px 2px 12px; font-size: 20px; color:#0f172a; }
 }
 .field-lg { height: 56px; display:flex; align-items:center; }
 
-/* Chip decorativo a la derecha */
 .suffix-badge {
   display: inline-grid; place-items: center;
   width: 34px; height: 34px; border-radius: 10px;
@@ -84,7 +73,6 @@ h2 { margin: 8px 2px 12px; font-size: 20px; color:#0f172a; }
 .btn-eye { border:0; background:transparent; padding:0; cursor:pointer; }
 .btn-eye:focus { outline: 2px solid #fef3c7; outline-offset: 2px; }
 
-/* Botón principal */
 .btn-primary {
   --background: #1e40af;
   --background-activated: #1b399a;
@@ -102,7 +90,26 @@ h2 { margin: 8px 2px 12px; font-size: 20px; color:#0f172a; }
   --background-activated: #14943f;
 }
 
-/* Links inferiores */
+/* Bloque acceso admin */
+.admin-quick {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content: space-between;
+  margin: 4px 2px 8px;
+}
+.btn-admin {
+  --border-color: #c7d2fe;
+  --color: #1e40af;
+  --background: #eef2ff;
+  height: 34px;
+  border-radius: 10px;
+}
+.hint {
+  font-size: 12px;
+  color: #475569;
+}
+
 .links {
   display:flex; justify-content: space-between; margin-top: 10px; font-size: 12px;
   a { color:#0ea5e9; text-decoration: none; cursor:pointer; }

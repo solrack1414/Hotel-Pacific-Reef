@@ -1,0 +1,67 @@
+.site-content {
+  --background: #f7fafc;
+}
+
+/* Tarjetas */
+ion-card {
+  margin: 16px auto;
+  max-width: 1000px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+/* Barra de acciones */
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.search {
+  --background: #fff;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px #e5e7eb;
+  flex: 1 1 320px;
+  margin: 0;
+}
+
+/* Lista de usuarios */
+ion-item {
+  --background: #fff;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.avatar {
+  font-size: 28px;
+  color: #64748b;
+}
+.row1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.row2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #4b5563;
+}
+.created {
+  opacity: .75;
+}
+
+/* Header web (opcional si compartes estilos del sitio) */
+.container {
+  width: min(1140px, 92vw);
+  margin-inline: auto;
+}
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 64px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.brand ion-icon { font-size: 20px; color: var(--ion-color-primary); }
+.menu { display: flex; gap: 18px; }
+.menu a { color: #374151; text-decoration: none; padding: 8px 12px; border-radius: 10px; }
+.menu a.active, .menu a:hover { background: #f3f4f6; }

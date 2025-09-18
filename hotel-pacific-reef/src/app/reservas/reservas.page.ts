@@ -3,21 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, NavController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthDbService } from '../services/auth-db.service';
-
-type RoomType = 'basic' | 'medium' | 'premium';
-
-type Habitacion = {
-  id: number;
-  tipo: RoomType;
-  nombre: string;
-  precioNoche: number;
-  camas: string;
-  capacidad: number;
-  amenities: string[];
-  imgs: string[];
-  descripcion: string;
-};
+import { AuthDbService, Habitacion, RoomType } from '../services/auth-db.service';
 
 @Component({
   selector: 'app-reservas',
@@ -27,70 +13,38 @@ type Habitacion = {
   styleUrls: ['./reservas.page.scss'],
 })
 export class ReservasPage implements OnInit {
+  // sesión
   currentEmail: string | null = null;
 
-
-  minDate = '';   
-  maxDate = '';     
-  llegada: string | null = null; 
-  salida: string | null = null;  
+  // fechas
+  minDate = '';
+  maxDate = '';
+  llegada: string | null = null;  // YYYY-MM-DD
+  salida: string | null = null;   // YYYY-MM-DD
   noches = 0;
   errorMsg = '';
 
+  // reglas de horario
+  private readonly CHECKIN_HOUR = 14;   // 14:00
+  private readonly CHECKOUT_HOUR = 12;  // 12:00
 
+  // filtros
   tipoSeleccionado: '' | RoomType = '';
-  habitaciones: Habitacion[] = [
-    {
-      id: 1,
-      tipo: 'basic',
-      nombre: 'Básica Vista Jardín',
-      precioNoche: 45000,
-      camas: '1 cama Queen',
-      capacidad: 2,
-      amenities: ['TV', 'Wi-Fi', 'Baño privado'],
-      descripcion:
-        'Opción cómoda y funcional con vista al jardín. Ideal para viajeros que buscan buen precio.',
-      imgs: [
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-899191643476107001/original/ecb764ea-4dd1-4ff8-aa83-b9666ab9aece.jpeg?im_w=1200',
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-899191643476107001/original/d661d19f-1130-4fc0-9869-abb1ff95e718.jpeg?im_w=1440',
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-899191643476107001/original/20b268aa-20bd-4595-b5a6-d2d711a265eb.jpeg?im_w=1440',
-      ],
-    },
-    {
-      id: 2,
-      tipo: 'medium',
-      nombre: 'Medium Vista Mar Parcial',
-      precioNoche: 78000,
-      camas: '1 cama King',
-      capacidad: 3,
-      amenities: ['TV 50”', 'A/C', 'Mini bar', 'Caja fuerte'],
-      descripcion:
-        'Espacio superior con acabados mejorados y vista parcial al mar. Excelente relación valor/precio.',
-      imgs: [
-        'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1200&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1200&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1200&auto=format&fit=crop',
-      ],
-    },
-    {
-      id: 3,
-      tipo: 'premium',
-      nombre: 'Premium Vista Mar Completa',
-      precioNoche: 125000,
-      camas: '1 cama King + Sofá cama',
-      capacidad: 4,
-      amenities: ['Balcón privado', 'A/C', 'Cafetera cápsulas', 'Batas & pantuflas'],
-      descripcion:
-        'Nuestra mejor categoría: balcón privado frente al océano, terminaciones de lujo y mayor metraje.',
-      imgs: [
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-1060806767856162567/original/8cd2822c-4c58-4b21-82f3-3edf9d462e15.jpeg?im_w=1200',
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-1060806767856162567/original/e4fa56f5-49ea-4cf7-b0cf-ea7bc6e63857.jpeg?im_w=1440',
-        'https://a0.muscache.com/im/pictures/prohost-api/Hosting-1060806767856162567/original/26ed7121-c566-4318-828c-d3ff8001c43c.jpeg?im_w=1440',
-      ],
-    },
-  ];
+  soloDisponibles = true;
 
+  // data
+  habitaciones: Habitacion[] = [];
   filtradas: Habitacion[] = [];
+
+  // galería por tarjeta
+  private fallbackImg = 'https://dummyimage.com/1200x700/eee/aaa&text=Sin+foto';
+  selectedIndex: Record<number, number> = {};
+
+  // lightbox
+  lightboxOpen = false;
+  lightboxImgs: string[] = [];
+  lightboxIndex = 0;
+  zoomed = false;
 
   constructor(
     private authDb: AuthDbService,
@@ -106,26 +60,30 @@ export class ReservasPage implements OnInit {
       return;
     }
 
+    // fechas: min 5 días desde hoy, max 365 días
 
     const hoy = new Date();
     this.minDate = this.toISO(this.addDays(hoy, 5));
     this.maxDate = this.toISO(this.addDays(hoy, 365));
 
+    this.habitaciones = this.authDb.listRooms();
     this.filtrar();
   }
 
+  /* ======= Sesión ======= */
   logout(ev?: Event) {
     ev?.preventDefault();
     this.authDb.logout();
     this.nav.navigateRoot('/login');
   }
 
-
-  onFechaChange() {
+  /* ======= Fechas / Filtros ======= */
+ onFechaChange() {
     this.errorMsg = '';
     this.noches = 0;
 
     if (this.llegada && this.salida) {
+      // llegada debe ser < salida
       if (this.llegada >= this.salida) {
         this.errorMsg = 'La salida debe ser posterior a la llegada.';
         return;
@@ -135,33 +93,30 @@ export class ReservasPage implements OnInit {
         return;
       }
 
-      this.noches = this.diffDays(this.llegada, this.salida);
-      if (this.noches <= 0) {
-        this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
-      }
+      // Noches usando solo fechas (check-in 14:00, check-out 12:00 no cambian el conteo)
+      this.noches = this.diffNights(this.llegada, this.salida);
+      if (this.noches <= 0) this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
     }
-  }
-
-  filtrar() {
-    const t = this.tipoSeleccionado;
-    this.filtradas = t ? this.habitaciones.filter(h => h.tipo === t) : this.habitaciones.slice();
   }
 
   async reservar(h: Habitacion) {
     if (!this.llegada || !this.salida || this.noches <= 0) {
       return this.msg('Selecciona llegada y salida válidas.');
     }
-    const email = this.currentEmail!;
-    const total = h.precioNoche * this.noches;
+    if (!h.disponible) return this.msg('Esta habitación no está disponible.', 'medium');
+
+    const noches = this.diffNights(this.llegada, this.salida);
+    const total = h.precioNoche * noches;
 
     this.authDb.addReservation({
-      email,
+      email: this.currentEmail!,
       habitacionId: h.id,
       nombreHabitacion: h.nombre,
       tipo: h.tipo,
-      llegada: this.llegada,
-      salida: this.salida,
-      noches: this.noches,
+      // guardamos fecha con hora de política (opcional)
+      llegada: this.asCheckIn(this.llegada),   // YYYY-MM-DDT14:00:00
+      salida:  this.asCheckOut(this.salida),   // YYYY-MM-DDT12:00:00
+      noches,
       precioNoche: h.precioNoche,
       total
     });
@@ -169,6 +124,90 @@ export class ReservasPage implements OnInit {
     this.msg('Reserva guardada ✅', 'success');
   }
 
+  // ===== Helpers fechas =====
+  private asCheckIn(isoDate: string)  { return `${isoDate}T14:00:00`; }
+  private asCheckOut(isoDate: string) { return `${isoDate}T12:00:00`; }
+
+  /** Noches = diferencia de días entre fechas (sin horas) */
+  private diffNights(startISO: string, endISO: string) {
+    const s = new Date(startISO + 'T00:00:00');
+    const e = new Date(endISO   + 'T00:00:00');
+    const MS = 1000 * 60 * 60 * 24;
+    return Math.max(0, Math.round((e.getTime() - s.getTime()) / MS));
+  }
+
+  /** Noches = ceil( (salida 12:00 - llegada 14:00) / 24h ) */
+  private calcNoches(isoStart: string, isoEnd: string): number {
+    const inDate  = this.composeLocal(isoStart, this.CHECKIN_HOUR, 0);
+    const outDate = this.composeLocal(isoEnd,   this.CHECKOUT_HOUR, 0);
+    const diffMs = outDate.getTime() - inDate.getTime();
+    const dayMs = 1000 * 60 * 60 * 24;
+    // si el usuario eligió días consecutivos: 22h -> ceil = 1 noche
+    return Math.max(0, Math.ceil(diffMs / dayMs));
+  }
+
+  /** Construye Date local a partir de YYYY-MM-DD y hora:minuto */
+  private composeLocal(iso: string, hour: number, minute: number): Date {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, (m - 1), d, hour, minute, 0);
+  }
+
+  filtrar() {
+    let list = this.habitaciones.slice();
+    if (this.tipoSeleccionado) list = list.filter(h => h.tipo === this.tipoSeleccionado);
+    if (this.soloDisponibles)   list = list.filter(h => h.disponible);
+    this.filtradas = list;
+  }
+
+  /* ======= Reserva ======= */
+
+
+  /* ======= Galería (tarjeta) ======= */
+  getIndex(h: Habitacion): number {
+    const i = this.selectedIndex[h.id];
+    return typeof i === 'number' ? i : 0;
+  }
+
+  getCover(h: Habitacion): string {
+    const imgs = h.imgs || [];
+    const i = this.getIndex(h);
+    return imgs.length ? imgs[i] : this.fallbackImg;
+  }
+
+  showImg(h: Habitacion, i: number): void {
+    this.selectedIndex[h.id] = i;
+  }
+
+  /* ======= Lightbox ======= */
+  openLightbox(h: Habitacion, startIndex = 0): void {
+    this.lightboxImgs = (h.imgs && h.imgs.length) ? h.imgs : [this.fallbackImg];
+    this.lightboxIndex = Math.min(Math.max(startIndex, 0), this.lightboxImgs.length - 1);
+    this.zoomed = false;
+    this.lightboxOpen = true;
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+    this.zoomed = false;
+  }
+
+  next(): void {
+    if (!this.lightboxImgs?.length) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxImgs.length;
+    this.zoomed = false;
+  }
+
+  prev(): void {
+    if (!this.lightboxImgs?.length) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxImgs.length) % this.lightboxImgs.length;
+    this.zoomed = false;
+  }
+
+  toggleZoom(): void {
+    this.zoomed = !this.zoomed;
+  }
+
+  /* ======= Helpers ======= */
   private toISO(d: Date) {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -176,22 +215,13 @@ export class ReservasPage implements OnInit {
     return `${y}-${m}-${day}`;
   }
   private addDays(base: Date, days: number) {
-    const d = new Date(base);
-    d.setDate(d.getDate() + days);
-    return d;
+    const d = new Date(base); d.setDate(d.getDate() + days); return d;
   }
-  private diffDays(isoStart: string, isoEnd: string) {
-    const s = new Date(isoStart + 'T00:00:00');
-    const e = new Date(isoEnd + 'T00:00:00');
-    const MS = 1000 * 60 * 60 * 24;
-    return Math.round((e.getTime() - s.getTime()) / MS);
-  }
+
   currency(v: number) {
     return v.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
   }
-
   private async msg(text: string, color: 'danger' | 'success' | 'medium' = 'danger') {
-    const t = await this.toast.create({ message: text, duration: 2200, color, position: 'bottom' });
-    await t.present();
+    (await this.toast.create({ message: text, duration: 2200, color, position: 'bottom' })).present();
   }
 }

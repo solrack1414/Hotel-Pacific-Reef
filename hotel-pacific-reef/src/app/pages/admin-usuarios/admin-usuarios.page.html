@@ -1,0 +1,78 @@
+<ion-header class="site-header">
+  <ion-toolbar color="light">
+    <div class="container navbar">
+      <div class="brand">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Admin • Usuarios</span>
+      </div>
+
+      <nav class="menu">
+        <a routerLink="/admin">Dashboard</a>
+        <a routerLink="/admin/usuarios" routerLinkActive="active">Usuarios</a>
+        <a routerLink="/admin/reservas">Reservas</a>
+        <a routerLink="/admin/habitaciones">Habitaciones</a>
+        <a routerLink="/admin/reportes">Reportes</a>
+      </nav>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="site-content ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Gestión de usuarios</ion-card-title>
+      <ion-card-subtitle>Crear, editar, roles y eliminación</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="actions">
+        <ion-button color="primary" (click)="createUser()">
+          <ion-icon name="person-add-outline" slot="start"></ion-icon>
+          Nuevo usuario
+        </ion-button>
+
+        <ion-item lines="none" class="search">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <ion-input [(ngModel)]="q" (ionInput)="load()" placeholder="Buscar por correo o nombre"></ion-input>
+        </ion-item>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let u of users">
+          <ion-icon name="person-circle-outline" slot="start" class="avatar"></ion-icon>
+
+          <ion-label>
+            <div class="row1">
+              <b>{{ u.email }}</b>
+              <ion-badge *ngIf="u.role==='admin'" color="tertiary">ADMIN</ion-badge>
+            </div>
+            <div class="row2">
+              <span>Nombre: {{ u.name || '—' }}</span>
+              <span class="created">Creado: {{ u.created_at | date:'short' }}</span>
+            </div>
+          </ion-label>
+
+          <ion-button fill="outline" size="small" (click)="editName(u)">
+            <ion-icon name="create-outline" slot="start"></ion-icon> Nombre
+          </ion-button>
+
+          <ion-button fill="outline" size="small" (click)="editPass(u)">
+            <ion-icon name="key-outline" slot="start"></ion-icon> Contraseña
+          </ion-button>
+
+          <ion-button fill="outline" size="small" (click)="toggleRole(u)">
+            <ion-icon [name]="u.role==='admin' ? 'remove-circle-outline' : 'shield-checkmark-outline'" slot="start"></ion-icon>
+            {{ u.role==='admin' ? 'Quitar admin' : 'Hacer admin' }}
+          </ion-button>
+
+          <ion-button color="danger" size="small" (click)="confirmDelete(u)">
+            <ion-icon name="trash-outline" slot="start"></ion-icon> Eliminar
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

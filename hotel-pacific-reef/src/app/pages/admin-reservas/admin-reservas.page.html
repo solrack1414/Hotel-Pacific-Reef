@@ -1,0 +1,75 @@
+<ion-header class="site-header">
+  <ion-toolbar color="light">
+    <div class="container navbar">
+      <div class="brand">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Admin • Reservas</span>
+      </div>
+
+      <nav class="menu">
+        <a routerLink="/admin">Dashboard</a>
+        <a routerLink="/admin/usuarios">Usuarios</a>
+        <a routerLink="/admin/reservas" routerLinkActive="active">Reservas</a>
+        <a routerLink="/admin/habitaciones">Habitaciones</a>
+        <a routerLink="/admin/reportes">Reportes</a>
+      </nav>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="site-content ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Reservas</ion-card-title>
+      <ion-card-subtitle>Filtra por mes o busca por correo/nombre habitación</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="filters">
+        <ion-item lines="none" class="search">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <ion-input [(ngModel)]="q" (ionInput)="applyFilters()" placeholder="Buscar por correo o habitación"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="month">
+          <ion-label>Mes</ion-label>
+          <ion-select [(ngModel)]="mes" (ionChange)="applyFilters()" interface="popover" placeholder="Todos">
+            <ion-select-option value="">Todos</ion-select-option>
+            <ion-select-option *ngFor="let m of mesesDisponibles" [value]="m">{{ m }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-badge color="primary" class="sum">
+          Total listado: {{ currency(totalView()) }}
+        </ion-badge>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let r of view">
+          <ion-label>
+            <div class="row1">
+              <b>#{{ r.id }}</b> • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})
+            </div>
+            <div class="row2">
+              
+              <span>👤 {{ r.email }}</span>
+              <span>🗓 {{ r.llegada }} → {{ r.salida }} ({{ effectiveNights(r) }} noche/s)</span>
+              <span>💵 {{ currency(r.precioNoche) }}/noche • <b>{{ currency(totalOf(r)) }}</b></span>
+            </div>
+            <small class="created">Creada: {{ r.createdAt | date:'short' }}</small>
+          </ion-label>
+          <ion-button color="danger" size="small" (click)="confirmDelete(r)">
+            <ion-icon name="trash-outline" slot="start"></ion-icon> Eliminar
+          </ion-button>
+        </ion-item>
+
+        <ion-item *ngIf="!view.length" lines="none">
+          <ion-label color="medium">No hay reservas con ese filtro.</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

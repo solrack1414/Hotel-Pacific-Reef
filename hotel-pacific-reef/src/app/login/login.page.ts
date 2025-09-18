@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { IonicModule, ToastController, NavController, IonInput } from '@ionic/angular';
 import { AuthDbService } from '../services/auth-db.service';
 
 @Component({
@@ -23,6 +23,8 @@ export class LoginPage implements OnInit {
   regPass2 = '';
   regShowPass = false;
 
+  @ViewChild('passInput', { static: false }) passInput?: IonInput;
+
   constructor(
     private auth: AuthDbService,
     private toast: ToastController,
@@ -30,9 +32,13 @@ export class LoginPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    await this.auth.init(); 
+    await this.auth.init();
     const logged = this.auth.getSessionEmail();
-    if (logged) this.nav.navigateRoot('/home');
+    if (logged) {
+      // si ya está logueado, redirige según rol
+      const to = this.auth.isAdmin() ? '/admin' : '/home';
+      this.nav.navigateRoot(to);
+    }
   }
 
   async onLogin() {
@@ -44,12 +50,21 @@ export class LoginPage implements OnInit {
       const ok = await this.auth.login(this.email, this.password);
       if (!ok) return this.msg('Credenciales inválidas.');
       this.msg('¡Bienvenido!', 'success');
-      this.nav.navigateRoot('/home');
+
+      // Redirección según rol
+      const to = this.auth.isAdmin() ? '/admin' : '/home';
+      this.nav.navigateRoot(to);
     } catch (e:any) {
       this.msg(e?.message || 'Error al iniciar sesión.');
     } finally {
       this.isLoading = false;
     }
+  }
+
+  fillAdminEmail() {
+    this.email = 'admin@pacificreef.cl';
+    // enfocar contraseña para escribirla de inmediato
+    setTimeout(() => this.passInput?.setFocus(), 0);
   }
 
   openRegister(ev: Event) { ev.preventDefault(); this.registerOpen = true; }

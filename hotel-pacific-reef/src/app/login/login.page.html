@@ -1,8 +1,6 @@
 <ion-content class="login-bg" [fullscreen]="true">
-  <!-- overlay opcional (oscurece un poco la imagen para que el card destaque) -->
   <div class="bg-overlay"></div>
 
-  <!-- wrapper para centrar el card -->
   <div class="login-wrap">
     <div class="card">
 
@@ -15,6 +13,7 @@
 
       <h2>Inicia sesión</h2>
 
+      <!-- Email -->
       <ion-item lines="none" class="field field-lg">
         <ion-input
           type="email"
@@ -28,8 +27,10 @@
         </span>
       </ion-item>
 
+      <!-- Password -->
       <ion-item lines="none" class="field field-lg">
         <ion-input
+          #passInput
           [type]="showPass ? 'text' : 'password'"
           placeholder="Contraseña"
           [(ngModel)]="password"
@@ -55,7 +56,7 @@
     </div>
   </div>
 
-  <!-- Modal registro (igual que tenías) -->
+  <!-- Modal registro -->
   <ion-modal [isOpen]="registerOpen" (willDismiss)="registerOpen=false">
     <ng-template>
       <ion-header>

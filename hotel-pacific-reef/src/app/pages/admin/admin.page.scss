@@ -1,0 +1,53 @@
+
+
+
+.site-content {
+  --background: #f7fafc;
+}
+
+h2 {
+  margin: 8px 0 4px;
+  font-size: 22px;
+}
+p {
+  margin: 0 0 16px;
+  color: #4b5563;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.admin-card {
+  text-align: center;
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+.admin-card ion-icon.big {
+  font-size: 40px;
+  color: var(--ion-color-primary);
+  margin-bottom: 6px;
+}
+
+
+/* Header web (opcionales, por si usas el mismo estilo del sitio) */
+.container {
+  width: min(1140px, 92vw);
+  margin-inline: auto;
+}
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 64px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.brand ion-icon { font-size: 20px; color: var(--ion-color-primary); }
+.menu { display: flex; gap: 18px; }
+.menu a {
+  color: #374151; text-decoration: none; padding: 8px 12px; border-radius: 10px;
+}
+.menu a.active, .menu a:hover { background: #f3f4f6; }
