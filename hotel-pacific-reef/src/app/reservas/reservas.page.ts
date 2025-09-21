@@ -4,6 +4,7 @@ import { IonicModule, ToastController, NavController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthDbService, Habitacion, RoomType } from '../services/auth-db.service';
+import { sparklesOutline, close, chevronBack, chevronForward } from 'ionicons/icons';
 
 @Component({
   selector: 'app-reservas',
@@ -105,23 +106,15 @@ export class ReservasPage implements OnInit {
     }
     if (!h.disponible) return this.msg('Esta habitación no está disponible.', 'medium');
 
-    const noches = this.diffNights(this.llegada, this.salida);
-    const total = h.precioNoche * noches;
-
-    this.authDb.addReservation({
-      email: this.currentEmail!,
-      habitacionId: h.id,
-      nombreHabitacion: h.nombre,
-      tipo: h.tipo,
-      // guardamos fecha con hora de política (opcional)
-      llegada: this.asCheckIn(this.llegada),   // YYYY-MM-DDT14:00:00
-      salida:  this.asCheckOut(this.salida),   // YYYY-MM-DDT12:00:00
-      noches,
-      precioNoche: h.precioNoche,
-      total
+    // Redirigir al portal de pago con los datos de la reserva
+    this.nav.navigateForward('/portal-pago', {
+      state: {
+        habitacion: h,
+        llegada: this.llegada,
+        salida: this.salida,
+        noches: this.noches
+      }
     });
-
-    this.msg('Reserva guardada ✅', 'success');
   }
 
   // ===== Helpers fechas =====

@@ -12,18 +12,28 @@ export type UserRow = {
 };
 
 export type Reserva = {
-  id: number;
-  email: string;        
-  habitacionId: number;
-  nombreHabitacion: string;
-  tipo: RoomType;
-  llegada: string;   
-  salida: string;         
-  noches: number;
-  precioNoche: number;
-  total: number;
-  createdAt: string;       
+    id: number;
+    email: string;        
+    habitacionId: number;
+    nombreHabitacion: string;
+    tipo: RoomType;
+    llegada: string;   
+    salida: string;         
+    noches: number;
+    precioNoche: number;
+    total: number;
+    pagoInicial: number;
+    pagoCompleto: boolean;
+    metodoPago: string;
+    contacto: {
+      nombre: string;
+      email: string;
+      telefono: string;
+    };
+    createdAt: string;
+    comprobante?: string;
 };
+
 
 export type Habitacion = {
   id: number;
@@ -195,7 +205,7 @@ export class AuthDbService {
   }
 
 
-  addReservation(data: Omit<Reserva, 'id' | 'createdAt' | 'email'> & { email: string }): Reserva {
+  addReservation(data: Omit<Reserva, 'id' | 'createdAt'>): Reserva {
     const all = this.listReservations();
     const id = (all.reduce((mx, r) => Math.max(mx, r.id), 0) || 0) + 1;
     const createdAt = new Date().toISOString();
@@ -212,7 +222,12 @@ export class AuthDbService {
       salida: data.salida,
       noches: data.noches,
       precioNoche: data.precioNoche,
-      total: data.total
+      total: data.total,
+      pagoInicial: data.pagoInicial,           // AÑADIDO
+      pagoCompleto: data.pagoCompleto,         // AÑADIDO
+      metodoPago: data.metodoPago,             // AÑADIDO
+      contacto: data.contacto,                 // AÑADIDO
+      comprobante: data.comprobante            // AÑADIDO
     };
     all.unshift(reserva);
     localStorage.setItem(this.LS_RESERVAS, JSON.stringify(all));
@@ -283,3 +298,4 @@ export class AuthDbService {
     return [...map.values()].sort((a, b) => b.veces - a.veces).slice(0, limit);
   }
 }
+
