@@ -73,18 +73,20 @@ export class PortalPagoPage implements OnInit {
       this.llegada = state.llegada;
       this.salida = state.salida;
       this.noches = state.noches;
+      
+      // Add validation for nights calculation
+      if (isNaN(this.noches)) {
+        const start = new Date(this.llegada);
+        const end = new Date(this.salida);
+        const timeDiff = end.getTime() - start.getTime();
+        this.noches = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      }
+      
       this.totalEstadia = this.habitacion.precioNoche * this.noches;
-      this.calcularPago(); // Asegurarse de llamar a calcularPago()
+      this.calcularPago();
     } else {
       this.nav.navigateBack('/reservas');
       return;
-    }
-    
-    this.currentEmail = this.authDb.getSessionEmail();
-    if (this.currentEmail) {
-      this.contactForm.patchValue({
-        email: this.currentEmail
-      });
     }
   }
 

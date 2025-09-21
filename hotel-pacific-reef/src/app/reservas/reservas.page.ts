@@ -79,26 +79,29 @@ export class ReservasPage implements OnInit {
   }
 
   /* ======= Fechas / Filtros ======= */
- onFechaChange() {
-    this.errorMsg = '';
-    this.noches = 0;
+onFechaChange() {
+  this.errorMsg = '';
+  this.noches = 0;
 
-    if (this.llegada && this.salida) {
-      // llegada debe ser < salida
-      if (this.llegada >= this.salida) {
-        this.errorMsg = 'La salida debe ser posterior a la llegada.';
-        return;
-      }
-      if (this.llegada < this.minDate) {
-        this.errorMsg = 'La llegada debe tener al menos 5 días de anticipación.';
-        return;
-      }
-
-      // Noches usando solo fechas (check-in 14:00, check-out 12:00 no cambian el conteo)
-      this.noches = this.diffNights(this.llegada, this.salida);
-      if (this.noches <= 0) this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
+  if (this.llegada && this.salida) {
+    if (this.llegada >= this.salida) {
+      this.errorMsg = 'La salida debe ser posterior a la llegada.';
+      return;
     }
+    if (this.llegada < this.minDate) {
+      this.errorMsg = 'La llegada debe tener al menos 5 días de anticipación.';
+      return;
+    }
+
+    // Calculate nights correctly
+    const start = new Date(this.llegada);
+    const end = new Date(this.salida);
+    const timeDiff = end.getTime() - start.getTime();
+    this.noches = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    if (this.noches <= 0) this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
   }
+}
 
   async reservar(h: Habitacion) {
     if (!this.llegada || !this.salida || this.noches <= 0) {

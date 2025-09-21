@@ -48,7 +48,7 @@
 
       <ion-item>
         <ion-label>Noches</ion-label>
-        <ion-note slot="end">{{ noches }} {{ noches === 1 ? 'noche' : 'noches' }}</ion-note>
+        <ion-note slot="end">{{ noches || 0 }} {{ (noches || 0) === 1 ? 'noche' : 'noches' }}</ion-note>
       </ion-item>
 
       <ion-item>
