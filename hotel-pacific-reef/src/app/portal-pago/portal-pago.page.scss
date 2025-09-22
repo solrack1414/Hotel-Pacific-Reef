@@ -1,63 +1,123 @@
-/* Mantenemos los estilos consistentes con reservas */
-.site-content {
-  --background: #f8fafc;
-}
+/* ====== Layout base / Header ====== */
+.container { width: min(1140px, 92vw); margin-inline: auto; }
 
-.navbar, .footer {
-  max-width: 1100px;
-  margin: 0 auto;
+.site-header ion-toolbar {
+  --background:#fff; --color:#111827;
+  border-bottom:1px solid #e5e7eb;
 }
+.navbar { display:flex; align-items:center; justify-content:space-between; min-height:64px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:700; }
+.brand ion-icon { font-size:20px; color: var(--ion-color-primary); }
 
-ion-card {
-  margin: 16px auto;
-  max-width: 860px;
+.menu { display:flex; align-items:center; gap:18px; }
+.menu a { color:#374151; text-decoration:none; padding:8px 12px; border-radius:10px; }
+.menu a.active, .menu a:hover { background:#f3f4f6; }
+
+.user-pill{
+  display:inline-flex; align-items:center; gap:6px; max-width:220px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  padding:6px 10px; border-radius:999px;
+  background:#eef2ff; color:#3730a3; font-size:13px; border:1px solid #e5e7eb;
+}
+.menu a.logout { color:#dc2626; font-weight:600; border:1px solid transparent; transition:all .2s ease; }
+.menu a.logout:hover { background:#fee2e2; border-color:#fecaca; }
+
+
+/* ====== Tarjeta principal ====== */
+ion-card{
+  margin: 20px auto;
+  max-width: 980px;
   border-radius: 14px;
-  box-shadow: 0 8px 22px rgba(2, 6, 23, 0.06);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  overflow: hidden;
+  background:#fff;
+}
+ion-card-header{
+  background:#f9fafb;
+  border-bottom:1px solid #e5e7eb;
+}
+ion-card-title{ font-weight:700; }
+ion-card-subtitle{ color:#6b7280; }
+
+/* ====== List headers (Secciones) ====== */
+ion-list-header{
+  --background: #fff;
+  padding-left: 0;
+  margin: 10px 0 6px;
+}
+ion-list-header ion-label{
+  font-weight: 700;
+  color: #111827;
 }
 
-ion-list-header {
-  --background: #f1f5f9;
-  --color: #0f172a;
-  font-weight: 600;
-  margin-top: 20px;
+/* ====== Items / Campos ====== */
+ion-item{
+  --background:#fff;
+  border-radius: 12px;
+  margin: 10px 0;
+  box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+ion-item h3{ margin: 0; font-weight: 700; color:#0f172a; }
+ion-item p { margin: 2px 0 0; color:#4b5563; }
+ion-item ion-note[slot="end"]{ font-weight:600; }
+
+/* ====== Resumen de montos ====== */
+ion-item strong{ font-weight: 800; }
+ion-item:last-of-type strong{ color:#111827; }
+
+/* ====== Radio group / Segment ====== */
+ion-radio-group ion-item{
+  box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+ion-segment{
+  margin-top: 8px;
+  background:#f3f4f6;
+  border-radius: 12px;
+  --indicator-color: var(--ion-color-primary);
+}
+ion-segment-button{
+  --background: transparent;
+  --color: #374151;
+  --color-checked: #111827;
+  min-height: 42px;
 }
 
-ion-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
+/* ====== Bloques de método de pago ====== */
+div[ng-reflect-ng-if] ion-item h3{ font-weight:800; }
+div[ng-reflect-ng-if] ion-item p{ color:#4b5563; }
+
+/* Campos tarjeta/transferencia un poco más compactos */
+div[ng-reflect-ng-if] ion-item{
+  margin: 8px 0;
 }
 
-.footer {
-  background: #0f172a;
-  color: #cbd5e1;
-  padding: 18px 0;
-  margin-top: 24px;
-  
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
+/* ====== Botón confirmar ====== */
+ion-button.ion-margin-top{
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 8px 16px rgba(16,185,129,.25);
 }
 
-/* Responsivo */
-@media (max-width: 860px) {
-  .navbar {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .menu {
-    justify-content: center;
-  }
+/* Nota inferior */
+ion-note[color="medium"]{
+  display:block;
+  margin-top: 8px;
 }
 
-@media (max-width: 480px) {
-  ion-card {
-    margin: 12px auto;
-  }
+/* ====== Footer pegado al final ====== */
+.footer{
+  margin-top:auto;
+  background:#0f172a; color:#cbd5e1; padding:18px 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.footer .container{
+  display:flex; justify-content:center; align-items:center;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 640px){
+  ion-card{ margin: 16px auto; max-width: 94vw; }
+  .menu{ gap:10px; }
+  .user-pill{ display:none; } /* evita que rompa el header en móviles */
 }

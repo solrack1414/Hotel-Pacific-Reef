@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+
 import { 
   IonicModule, 
   ToastController, 
@@ -9,13 +11,13 @@ import {
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthDbService, Reserva } from '../services/auth-db.service';
-import { addIcons } from 'ionicons'; // Añadir esta importación
-import { sparklesOutline, close, chevronBack, chevronForward } from 'ionicons/icons'; // Añadir estas importaciones
+import { addIcons } from 'ionicons'; 
+import { sparklesOutline, close, chevronBack, chevronForward } from 'ionicons/icons'; 
 
 @Component({
   selector: 'app-portal-pago',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule,RouterLink],
   templateUrl: './portal-pago.page.html',
   styleUrls: ['./portal-pago.page.scss'],
 })
@@ -74,7 +76,7 @@ export class PortalPagoPage implements OnInit {
       this.salida = state.salida;
       this.noches = state.noches;
       
-      // Add validation for nights calculation
+  
       if (isNaN(this.noches)) {
         const start = new Date(this.llegada);
         const end = new Date(this.salida);
@@ -98,7 +100,7 @@ export class PortalPagoPage implements OnInit {
     if (this.opcionPago === 'completo') {
       this.montoAPagar = this.totalEstadia;
     } else {
-      this.montoAPagar = Math.round(this.totalEstadia * 0.3); // 30%
+      this.montoAPagar = Math.round(this.totalEstadia * 0.3);
     }
   }
 
@@ -126,7 +128,6 @@ export class PortalPagoPage implements OnInit {
     await loading.present();
 
     try {
-      // Crear objeto de reserva
       const reservaData = {
         email: this.contactForm.value.email,
         habitacionId: this.habitacion.id,
@@ -177,7 +178,6 @@ export class PortalPagoPage implements OnInit {
   }
 
   private simularEnvioCorreo(reserva: Reserva) {
-    // En una aplicación real, aquí se conectaría a un servicio de correo
     console.log('Simulando envío de correo para reserva:', reserva);
     console.log('Detalles del correo:');
     console.log('- Para:', this.contactForm.value.email);
