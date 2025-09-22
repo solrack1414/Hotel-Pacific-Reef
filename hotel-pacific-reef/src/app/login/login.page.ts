@@ -76,7 +76,7 @@ export class LoginPage implements OnInit {
 
     this.isLoading = true;
     try {
-      await this.auth.register(this.regEmail, this.regPass);
+      await this.auth.register(this.regEmail, this.regPass, undefined);
       this.msg('Cuenta creada. Ahora puedes iniciar sesión.', 'success');
       this.registerOpen = false;
       this.email = this.regEmail;

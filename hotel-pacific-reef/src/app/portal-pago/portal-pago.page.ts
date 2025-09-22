@@ -1,202 +1,202 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-
-import { 
-  IonicModule, 
-  ToastController, 
-  NavController, 
-  LoadingController 
+import {
+  IonicModule,
+  ToastController,
+  LoadingController,
+  AlertController,
+  NavController
 } from '@ionic/angular';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthDbService, Reserva } from '../services/auth-db.service';
-import { addIcons } from 'ionicons'; 
-import { sparklesOutline, close, chevronBack, chevronForward } from 'ionicons/icons'; 
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthDbService, Habitacion } from '../services/auth-db.service';
 
 @Component({
   selector: 'app-portal-pago',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule,RouterLink],
+  imports: [
+    CommonModule,
+    IonicModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './portal-pago.page.html',
-  styleUrls: ['./portal-pago.page.scss'],
+  styleUrls: ['./portal-pago.page.scss']
 })
 export class PortalPagoPage implements OnInit {
-  // Datos de la reserva
-  habitacion: any = null;
-  llegada: string = '';
-  salida: string = '';
-  noches: number = 0;
-  totalEstadia: number = 0;
-  
-  // Formulario de contacto
-  contactForm: FormGroup;
-  
-  // Opciones de pago
-  opcionPago: string = 'completo';
-  metodoPago: string = 'transferencia';
-  montoAPagar: number = 0;
-  
-  // Datos de transferencia
-  comprobanteTransferencia: string = '';
-  
-  // Datos de tarjeta
-  tarjetaNumero: string = '';
-  tarjetaNombre: string = '';
-  tarjetaExpiracion: string = '';
-  tarjetaCVV: string = '';
-  
-  // Sesión
+
+  // Header/user
   currentEmail: string | null = null;
 
-  constructor(
-    private nav: NavController,
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private authDb: AuthDbService,
-    private toast: ToastController,
-    private loadingCtrl: LoadingController
-  ) {
-    addIcons({ sparklesOutline, close, chevronBack, chevronForward });
-    
-    this.contactForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required]
-    });
-  }
+  // Datos de la reserva recibidos desde "Reservas"
+  habitacion: Habitacion | null = null;
+  llegada: string | null = null;   // YYYY-MM-DD
+  salida: string | null = null;    // YYYY-MM-DD
+  noches = 0;
+  totalEstadia = 0;
 
-  ngOnInit() {
-    const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras?.state as any;
-    
-    if (state) {
-      this.habitacion = state.habitacion;
-      this.llegada = state.llegada;
-      this.salida = state.salida;
-      this.noches = state.noches;
-      
-  
-      if (isNaN(this.noches)) {
-        const start = new Date(this.llegada);
-        const end = new Date(this.salida);
-        const timeDiff = end.getTime() - start.getTime();
-        this.noches = Math.ceil(timeDiff / (1000 * 3600 * 24));
-      }
-      
-      this.totalEstadia = this.habitacion.precioNoche * this.noches;
-      this.calcularPago();
-    } else {
+  // Pago
+  opcionPago: 'completo' | 'parcial' | '' = '';         // ngModel en radios
+  metodoPago: 'transferencia' | 'tarjeta' | '' = '';    // ngModel en segment
+  montoAPagar = 0;
+
+  // Transferencia
+  comprobanteTransferencia = '';
+
+  // Tarjeta
+  tarjetaNumero = '';
+  tarjetaNombre = '';
+  tarjetaExpiracion = ''; // MM/AA
+  tarjetaCVV = '';
+
+  // Form de contacto (reactive)
+  contactForm = this.fb.group({
+    nombre:   ['', [Validators.required, Validators.minLength(2)]],
+    email:    ['', [Validators.required, Validators.email]],
+    telefono: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s]{7,}$/)]],
+  });
+
+  constructor(
+    private db: AuthDbService,
+    private fb: FormBuilder,
+    private toast: ToastController,
+    private loading: LoadingController,
+    private alert: AlertController,
+    private nav: NavController,
+    private router: Router
+  ) {}
+
+  async ngOnInit() {
+    await this.db.init();
+
+    // Sesión
+    this.currentEmail = this.db.getSessionEmail();
+    if (!this.currentEmail) {
+      this.nav.navigateRoot('/login');
+      return;
+    }
+
+    // Recibir state desde /reservas
+    const state = this.router.getCurrentNavigation()?.extras?.state as any || history.state;
+    const roomId: number | undefined = state?.roomId;
+    this.llegada = state?.llegada || null;
+    this.salida  = state?.salida  || null;
+    this.noches  = Number(state?.noches || 0);
+
+    // Buscar habitación
+    const rooms = this.db.listRooms?.() || [];
+    this.habitacion = rooms.find((r: Habitacion) => r.id === roomId) || null;
+
+    if (!this.habitacion || !this.llegada || !this.salida || this.noches <= 0) {
+      await this.msg('Datos de la reserva incompletos. Vuelve a Reservas.');
       this.nav.navigateBack('/reservas');
       return;
     }
+
+    this.totalEstadia = this.habitacion.precioNoche * this.noches;
+
+    // Valores por defecto de pago
+    this.opcionPago = 'completo';
+    this.calcularPago();           // setea montoAPagar
+    this.metodoPago = 'transferencia';
   }
 
-  currency(v: number) {
-    return v.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+  /* ============ UI helpers ============ */
+  currency(v?: number | null) {
+    const n = Number(v ?? 0);
+    return n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
   }
 
-  calcularPago() {
-    if (this.opcionPago === 'completo') {
-      this.montoAPagar = this.totalEstadia;
-    } else {
-      this.montoAPagar = Math.round(this.totalEstadia * 0.3);
-    }
-  }
-
-  formularioValido(): boolean {
-    if (!this.contactForm.valid || !this.opcionPago || !this.metodoPago) {
-      return false;
-    }
-    
-    if (this.metodoPago === 'transferencia' && !this.comprobanteTransferencia) {
-      return false;
-    }
-    
-    if (this.metodoPago === 'tarjeta' && 
-        (!this.tarjetaNumero || !this.tarjetaNombre || !this.tarjetaExpiracion || !this.tarjetaCVV)) {
-      return false;
-    }
-    
-    return true;
-  }
-
-  async confirmarPago() {
-    const loading = await this.loadingCtrl.create({
-      message: 'Procesando pago...'
-    });
-    await loading.present();
-
-    try {
-      const reservaData = {
-        email: this.contactForm.value.email,
-        habitacionId: this.habitacion.id,
-        nombreHabitacion: this.habitacion.nombre,
-        tipo: this.habitacion.tipo,
-        llegada: this.llegada,
-        salida: this.salida,
-        noches: this.noches,
-        precioNoche: this.habitacion.precioNoche,
-        total: this.totalEstadia,
-        pagoInicial: this.montoAPagar,
-        pagoCompleto: this.opcionPago === 'completo',
-        metodoPago: this.metodoPago,
-        contacto: this.contactForm.value
-      };
-
-      // Guardar reserva (aquí se simula el proceso)
-      const reserva = this.authDb.addReservation(reservaData);
-      
-      // Simular envío de correo
-      this.simularEnvioCorreo(reserva);
-      
-      await loading.dismiss();
-      
-      // Mostrar mensaje de éxito
-      const toast = await this.toast.create({
-        message: 'Reserva confirmada. Se ha enviado un correo con los detalles.',
-        duration: 3000,
-        color: 'success',
-        position: 'bottom'
-      });
-      await toast.present();
-      
-      // Redirigir a home o perfil
-      this.nav.navigateRoot('/perfil');
-      
-    } catch (error) {
-      await loading.dismiss();
-      
-      const toast = await this.toast.create({
-        message: 'Error al procesar la reserva. Intente nuevamente.',
-        duration: 3000,
-        color: 'danger',
-        position: 'bottom'
-      });
-      await toast.present();
-    }
-  }
-
-  private simularEnvioCorreo(reserva: Reserva) {
-    console.log('Simulando envío de correo para reserva:', reserva);
-    console.log('Detalles del correo:');
-    console.log('- Para:', this.contactForm.value.email);
-    console.log('- Asunto: Confirmación de reserva Hotel Pacific Reef');
-    console.log('- Cuerpo:');
-    console.log(`Hola ${this.contactForm.value.nombre},`);
-    console.log(`Su reserva para ${this.habitacion.nombre} ha sido confirmada.`);
-    console.log(`Check-in: ${this.llegada} a las 14:00`);
-    console.log(`Check-out: ${this.salida} a las 12:00`);
-    console.log(`Total pagado: ${this.montoAPagar.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}`);
-    
-    if (this.opcionPago === 'parcial') {
-      console.log(`Restante por pagar: ${(this.totalEstadia - this.montoAPagar).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}`);
-    }
+  async msg(text: string, color: 'danger' | 'success' | 'medium' = 'danger') {
+    (await this.toast.create({ message: text, duration: 2000, color, position: 'bottom' })).present();
   }
 
   logout(ev?: Event) {
     ev?.preventDefault();
-    this.authDb.logout();
+    this.db.logout();
     this.nav.navigateRoot('/login');
+  }
+
+  /* ============ Pago / Validaciones ============ */
+  calcularPago() {
+    if (!this.habitacion) { this.montoAPagar = 0; return; }
+    if (this.opcionPago === 'parcial') {
+      this.montoAPagar = Math.round(this.totalEstadia * 0.3);
+    } else {
+      this.montoAPagar = this.totalEstadia;
+    }
+    // Si el usuario eligió una opción de pago y no hay método seleccionado aún, por defecto transferencia
+    if (this.opcionPago && !this.metodoPago) this.metodoPago = 'transferencia';
+  }
+
+  formularioValido(): boolean {
+    // Contacto
+    if (!this.contactForm.valid) return false;
+
+    // Fechas y habitación
+    if (!this.habitacion || !this.llegada || !this.salida || this.noches <= 0) return false;
+
+    // Opción de pago y método
+    if (!this.opcionPago || !this.metodoPago) return false;
+
+    // Campos de método
+    if (this.metodoPago === 'transferencia') {
+      if (!this.comprobanteTransferencia.trim()) return false;
+    } else if (this.metodoPago === 'tarjeta') {
+      if (!/^\d{13,19}$/.test(this.tarjetaNumero.replace(/\s/g, ''))) return false;
+      if (this.tarjetaNombre.trim().length < 2) return false;
+      if (!/^\d{2}\/\d{2}$/.test(this.tarjetaExpiracion)) return false; // MM/AA simple
+      if (!/^\d{3,4}$/.test(this.tarjetaCVV)) return false;
+    }
+
+    return true;
+    // Nota: Disponibilidad final se revalida en confirmarPago()
+  }
+
+  async confirmarPago() {
+    if (!this.formularioValido()) {
+      return this.msg('Revisa los campos obligatorios.');
+    }
+    const loading = await this.loading.create({ message: 'Procesando pago…' });
+    await loading.present();
+
+    try {
+      // Revalidar disponibilidad antes de crear la reserva (concurrencia básica)
+      const hab = this.habitacion!;
+      const ok = this.db.isRangeAvailable(hab.id, this.llegada!, this.salida!);
+      if (!ok) throw new Error('La habitación ya no está disponible en esas fechas.');
+
+      // Crear reserva
+      this.db.addReservation({
+        email: this.currentEmail!,
+        habitacionId: hab.id,
+        nombreHabitacion: hab.nombre,
+        tipo: hab.tipo,
+        llegada: this.llegada!,
+        salida: this.salida!,
+        noches: this.noches,
+        precioNoche: hab.precioNoche,
+        total: this.totalEstadia
+      });
+
+      await loading.dismiss();
+      const done = await this.alert.create({
+        header: 'Pago confirmado',
+        message: 'Tu reserva fue generada con éxito. Recibirás un correo con el detalle.',
+        buttons: [{ text: 'Ir a Perfil', handler: () => this.nav.navigateRoot('/perfil') }]
+      });
+      done.present();
+
+    } catch (e: any) {
+      await loading.dismiss();
+      const er = await this.alert.create({
+        header: 'Error',
+        message: e?.message || 'No se pudo completar el pago.',
+        buttons: ['OK']
+      });
+      er.present();
+    }
   }
 }

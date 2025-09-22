@@ -7,17 +7,18 @@
       </div>
 
       <nav class="menu">
-        <a routerLink="/home" routerLinkActive="active">Home</a>
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
         <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
         <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
         <span *ngIf="email" class="user-pill" [title]="email">Hola, <b>{{ email }}</b></span>
-        <a href="#" class="logout" (click)="logout($event)">Cerrar sesión</a>
+        <a href="#" class="logout" (click)="logout($event)" aria-label="Cerrar sesión" title="Cerrar sesión">Cerrar sesión</a>
       </nav>
     </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="site-content ion-padding page-content">
+  <!-- Datos de la cuenta -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Mi perfil</ion-card-title>
@@ -36,33 +37,89 @@
   </ion-card>
 
   <!-- Mis reservas -->
-<ion-card>
-  <ion-card-header>
-    <ion-card-title>Mis reservas</ion-card-title>
-    <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
-  </ion-card-header>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Mis reservas</ion-card-title>
+      <ion-card-subtitle>Guardadas en este dispositivo</ion-card-subtitle>
+    </ion-card-header>
 
-  <ion-card-content>
-    <ion-list *ngIf="reservas && reservas.length > 0; else sinReservas">
-      <ion-item *ngFor="let r of reservas; trackBy: trackById" class="res-item">
-        <ion-label>
-          <h3>#{{ r.id }} • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})</h3>
-          <p>🗓 {{ (r.llegada || '').slice(0,10) }} → {{ (r.salida || '').slice(0,10) }} • {{ r.noches }} noche(s)</p>
-          <p>💵 {{ currency(r.precioNoche) }} / noche • Total: <b>{{ currency(r.total) }}</b></p>
-        </ion-label>
-        <ion-button fill="clear" color="danger" slot="end" (click)="borrarReserva(r)">
-          <ion-icon name="trash-outline"></ion-icon>
+    <ion-card-content>
+      <ion-list *ngIf="reservas.length; else sinReservas">
+        <ion-item *ngFor="let r of reservas; trackBy: trackById" class="res-item">
+          <ion-label>
+            <h3>#{{ r.id }} • {{ r.nombreHabitacion }} ({{ r.tipo | titlecase }})</h3>
+            <p>🗓 {{ r.llegada }} → {{ r.salida }} • {{ r.noches }} noche(s)</p>
+            <p>💵 {{ currency(r.precioNoche) }} / noche • Total: <b>{{ currency(r.total) }}</b></p>
+          </ion-label>
+
+          <ion-buttons slot="end">
+            <ion-button fill="clear" color="primary" (click)="abrirEditar(r)" aria-label="Editar reserva" title="Editar reserva">
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Editar
+            </ion-button>
+            <ion-button fill="clear" color="danger" (click)="borrarReserva(r)" aria-label="Eliminar reserva" title="Eliminar reserva">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      </ion-list>
+
+      <ng-template #sinReservas>
+        <ion-text color="medium">
+          Aún no tienes reservas. Ve a <a routerLink="/reservas">Reservas</a> para crear una.
+        </ion-text>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Modal: Editar fechas de la reserva -->
+  <ion-modal [isOpen]="editOpen" (willDismiss)="cerrarEditar()" [backdropDismiss]="false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Editar fechas</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarEditar()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-label position="stacked">Nueva llegada</ion-label>
+          <ion-datetime
+            [(ngModel)]="editLlegada"
+            [min]="minDate"
+            [max]="maxDate"
+            presentation="date"
+            aria-label="Seleccionar nueva fecha de llegada">
+          </ion-datetime>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Nueva salida</ion-label>
+          <ion-datetime
+            [(ngModel)]="editSalida"
+            [min]="minDate"
+            [max]="maxDate"
+            presentation="date"
+            aria-label="Seleccionar nueva fecha de salida">
+          </ion-datetime>
+        </ion-item>
+
+        <ion-text color="danger" *ngIf="editError">{{ editError }}</ion-text>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          class="ion-margin-top"
+          [disabled]="!puedeGuardarEdicion()"
+          (click)="guardarEdicion()">
+          Guardar cambios
         </ion-button>
-      </ion-item>
-    </ion-list>
-
-    <ng-template #sinReservas>
-      <ion-text color="medium">
-        Aún no tienes reservas. Ve a <a routerLink="/reservas">Reservas</a> para crear una.
-      </ion-text>
+      </ion-content>
     </ng-template>
-  </ion-card-content>
-</ion-card>
+  </ion-modal>
 
   <!-- Footer -->
   <footer class="footer">

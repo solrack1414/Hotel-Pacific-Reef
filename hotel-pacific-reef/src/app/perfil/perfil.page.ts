@@ -1,13 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, AlertController } from '@ionic/angular';
-import { RouterLink } from '@angular/router';
+import { IonicModule, NavController, AlertController, ToastController } from '@ionic/angular';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';           
 import { AuthDbService, Reserva } from '../services/auth-db.service';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterLink],
+  imports: [
+    CommonModule,
+    IonicModule,
+    FormsModule,          
+    RouterLink,
+    RouterLinkActive      
+  ],
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss']
 })
@@ -15,10 +22,20 @@ export class PerfilPage implements OnInit {
   email: string | null = null;
   reservas: Reserva[] = [];
 
+
+  editOpen = false;
+  editReserva: Reserva | null = null;
+  editLlegada = '';
+  editSalida = '';
+  editError = '';
+  minDate = '';
+  maxDate = '';
+
   constructor(
     private authDb: AuthDbService,
     private nav: NavController,
-    private alert: AlertController
+    private alert: AlertController,
+    private toast: ToastController
   ) {}
 
   async ngOnInit() {
@@ -28,47 +45,16 @@ export class PerfilPage implements OnInit {
       this.nav.navigateRoot('/login');
       return;
     }
+    const hoy = new Date();
+    this.minDate = this.toISO(this.addDays(hoy, 5));
+    this.maxDate = this.toISO(this.addDays(hoy, 365));
     this.load();
   }
 
-
-  ionViewWillEnter() {
-    this.email = this.authDb.getSessionEmail();
-    if (!this.email) {
-      this.nav.navigateRoot('/login');
-      return;
-    }
-    this.load();
-  }
-
-  private load() {
+  load() {
     if (!this.email) return;
-      const raw = this.authDb.isAdmin(this.email)
-    ? this.authDb.listReservations()
-    : this.authDb.listReservationsByEmail(this.email);
-
-
-    
-
-      // Sanea reservas antiguas que no tienen noches/total
-    this.reservas = raw.map(r => {
-      const llegadaBase = (r.llegada || '').slice(0, 10); // YYYY-MM-DD
-      const salidaBase  = (r.salida  || '').slice(0, 10);
-      const noches = r.noches ?? this.diffNights(llegadaBase, salidaBase);
-      const total  = r.total  ?? (noches * r.precioNoche);
-      return { ...r, noches, total };
-    });
+    this.reservas = this.authDb.listReservationsByEmail(this.email);
   }
-
-  private diffNights(startISO: string, endISO: string) {
-    if (!startISO || !endISO) return 0;
-    const s = new Date(startISO + 'T00:00:00');
-    const e = new Date(endISO   + 'T00:00:00');
-    const MS = 1000 * 60 * 60 * 24;
-    return Math.max(0, Math.round((e.getTime() - s.getTime()) / MS));
-  }
-
-
 
   currency(v: number) {
     return v.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
@@ -86,18 +72,60 @@ export class PerfilPage implements OnInit {
       message: `¿Eliminar la reserva #${r.id} de "${r.nombreHabitacion}"?`,
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Eliminar',
-          role: 'destructive',
-          handler: () => {
-            this.authDb.removeReservation(r.id);
-            this.load();
-          }
-        },
+        { text: 'Eliminar', role: 'destructive', handler: () => {
+          this.authDb.removeReservation(r.id);
+          this.load();
+        }},
       ]
     });
     await a.present();
   }
 
-  trackById = (_: number, r: Reserva) => r.id;
+  abrirEditar(r: Reserva) {
+    this.editReserva = r;
+    this.editLlegada = r.llegada;
+    this.editSalida  = r.salida;
+    this.editError = '';
+    this.editOpen = true;
+  }
+  cerrarEditar() {
+    this.editOpen = false;
+    this.editReserva = null;
+    this.editLlegada = this.editSalida = '';
+    this.editError = '';
+  }
+
+  puedeGuardarEdicion(): boolean {
+    if (!this.editReserva) return false;
+    if (!this.editLlegada || !this.editSalida) return false;
+    if (this.editLlegada >= this.editSalida) return false;
+    if (this.editLlegada < this.minDate) return false;
+    return true;
+  }
+  
+  trackById(index: number, item: Reserva) {
+  return item.id;
+}
+
+  async guardarEdicion() {
+    if (!this.editReserva) return;
+    try {
+      this.authDb.updateReservationDates(this.editReserva.id, this.editLlegada, this.editSalida);
+      (await this.toast.create({ message: 'Reserva actualizada', duration: 1800, color: 'success' })).present();
+      this.cerrarEditar();
+      this.load();
+    } catch (e:any) {
+      this.editError = e?.message || 'No se pudo actualizar';
+    }
+  }
+
+  private toISO(d: Date) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  private addDays(base: Date, days: number) {
+    const d = new Date(base); d.setDate(d.getDate() + days); return d;
+  }
 }

@@ -16,9 +16,8 @@ export class AdminReservasPage implements OnInit {
   reservas: Reserva[] = [];
   view: Reserva[] = [];
   q = '';                
-  mes = '';            
-  mesesDisponibles: string[] = []; 
-  authDb: any;
+  mes = '';              
+  mesesDisponibles: string[] = [];
 
   constructor(
     private db: AuthDbService,
@@ -35,10 +34,10 @@ export class AdminReservasPage implements OnInit {
     this.reservas = this.db.listReservations();
     const set = new Set<string>();
     for (const r of this.reservas) {
-      const m = (r.llegada || r.createdAt).slice(0, 7); 
+      const m = (r.llegada || r.createdAt).slice(0, 7); // YYYY-MM
       set.add(m);
     }
-    this.mesesDisponibles = [...set].sort((a,b)=> a.localeCompare(b));
+    this.mesesDisponibles = [...set].sort((a, b) => a.localeCompare(b));
     this.applyFilters();
   }
 
@@ -53,27 +52,6 @@ export class AdminReservasPage implements OnInit {
   }
 
 
-  del(r: Reserva) {
-    this.db.removeReservation(r.id);
-    this.ok('Reserva eliminada');
-    this.load();
-  }
-  ok(arg0: string) {
-    throw new Error('Method not implemented.');
-  }
-
-  totalView(): number {
-    return this.view.reduce((acc, r) => acc + (r.total ?? (r.noches * r.precioNoche)), 0);
-  }
-
-    totalOf(r: Reserva): number {
-    // Si la reserva ya tiene total (>0), úsalo; si no, recalcúlalo
-    const noches = this.effectiveNights(r);
-    const base = noches * (r.precioNoche || 0);
-    return (typeof r.total === 'number' && r.total > 0) ? r.total : base;
-  }
-
-  /* ========== Acciones ========== */
   async confirmDelete(r: Reserva) {
     const a = await this.alert.create({
       header: 'Eliminar reserva',
@@ -84,7 +62,8 @@ export class AdminReservasPage implements OnInit {
           text: 'Eliminar',
           role: 'destructive',
           handler: () => {
-            this.authDb.removeReservation(r.id);
+            this.db.removeReservation(r.id);
+            this.ok('Reserva eliminada');
             this.load();
           }
         }
@@ -92,7 +71,38 @@ export class AdminReservasPage implements OnInit {
     });
     await a.present();
   }
-  /* ========== Helpers ========== */
+
+  del(r: Reserva) {
+    this.db.removeReservation(r.id);
+    this.ok('Reserva eliminada');
+    this.load();
+  }
+
+
+  totalView(): number {
+    return this.view.reduce((acc, r) => acc + this.totalOf(r), 0);
+  }
+
+  totalOf(r: Reserva): number {
+    const noches = this.effectiveNights(r);
+    const base = noches * (r.precioNoche || 0);
+    return (typeof r.total === 'number' && r.total > 0) ? r.total : base;
+  }
+
+  effectiveNights(r: Reserva): number {
+    if (typeof r.noches === 'number' && r.noches > 0) return r.noches;
+    return this.diffNights(r.llegada, r.salida);
+  }
+
+  private diffNights(isoStart?: string, isoEnd?: string): number {
+    if (!isoStart || !isoEnd) return 0;
+    const s = new Date(isoStart.slice(0, 10) + 'T00:00:00');
+    const e = new Date(isoEnd.slice(0, 10) + 'T00:00:00');
+    const MS = 1000 * 60 * 60 * 24;
+    return Math.max(0, Math.round((e.getTime() - s.getTime()) / MS));
+  }
+
+ 
   currency(v: number) {
     return (v ?? 0).toLocaleString('es-CL', {
       style: 'currency',
@@ -100,21 +110,8 @@ export class AdminReservasPage implements OnInit {
       maximumFractionDigits: 0
     });
   }
-    effectiveNights(r: Reserva): number {
-    // Usa r.noches si es válido; si no, calcula por fechas (check-in 14:00, check-out 12:00 no afecta)
-    if (typeof r.noches === 'number' && r.noches > 0) return r.noches;
-    return this.diffNights(r.llegada, r.salida);
-  }
 
-  private diffNights(isoStart?: string, isoEnd?: string): number {
-    if (!isoStart || !isoEnd) return 0;
-    const s = new Date(isoStart.slice(0,10) + 'T00:00:00');
-    const e = new Date(isoEnd.slice(0,10) + 'T00:00:00');
-    const MS = 1000 * 60 * 60 * 24;
-    return Math.max(0, Math.round((e.getTime() - s.getTime()) / MS));
+  private async ok(message: string, color: 'success' | 'danger' | 'medium' = 'success') {
+    (await this.toast.create({ message, duration: 1600, color, position: 'bottom' })).present();
   }
-    // check-in 14:00 y check-out 12:00 no cambian el conteo de noches
-  }
-
-
-  
+}

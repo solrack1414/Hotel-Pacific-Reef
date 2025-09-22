@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { IonicModule, ToastController, NavController, LoadingController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthDbService, Habitacion, RoomType } from '../services/auth-db.service';
@@ -49,7 +49,8 @@ export class ReservasPage implements OnInit {
   constructor(
     private authDb: AuthDbService,
     private toast: ToastController,
-    private nav: NavController
+    private nav: NavController,
+    private loading: LoadingController
   ) {}
 
   async ngOnInit() {
@@ -103,22 +104,22 @@ export class ReservasPage implements OnInit {
   }
 }
 
-  async reservar(h: Habitacion) {
-    if (!this.llegada || !this.salida || this.noches <= 0) {
-      return this.msg('Selecciona llegada y salida válidas.');
-    }
-    if (!h.disponible) return this.msg('Esta habitación no está disponible.', 'medium');
+async reservar(h: Habitacion) {
+  if (!this.llegada || !this.salida || this.noches <= 0) return this.msg('Selecciona fechas válidas');
+  const overlay = await this.loading.create({ message: 'Preparando pago…' });
+  await overlay.present();
 
-    // Redirigir al portal de pago con los datos de la reserva
-    this.nav.navigateForward('/portal-pago', {
-      state: {
-        habitacion: h,
-        llegada: this.llegada,
-        salida: this.salida,
-        noches: this.noches
-      }
-    });
-  }
+  // Lleva datos a portal-pago
+  await overlay.dismiss();
+  this.nav.navigateForward('/portal-pago', {
+    state: {
+      roomId: h.id,
+      llegada: this.llegada,
+      salida: this.salida,
+      noches: this.noches
+    }
+  });
+}
 
   // ===== Helpers fechas =====
   private asCheckIn(isoDate: string)  { return `${isoDate}T14:00:00`; }
@@ -148,12 +149,18 @@ export class ReservasPage implements OnInit {
     return new Date(y, (m - 1), d, hour, minute, 0);
   }
 
-  filtrar() {
-    let list = this.habitaciones.slice();
-    if (this.tipoSeleccionado) list = list.filter(h => h.tipo === this.tipoSeleccionado);
-    if (this.soloDisponibles)   list = list.filter(h => h.disponible);
-    this.filtradas = list;
+filtrar() {
+  let list = this.habitaciones.slice();
+
+  if (this.tipoSeleccionado) {
+    list = list.filter(h => h.tipo === this.tipoSeleccionado);
   }
+  if (this.soloDisponibles && this.llegada && this.salida) {
+    list = list.filter(h => this.authDb.isRangeAvailable(h.id, this.llegada!, this.salida!));
+  }
+
+  this.filtradas = list;
+}
 
   /* ======= Reserva ======= */
 

@@ -90,6 +90,17 @@ h2 { margin: 8px 2px 12px; font-size: 20px; color:#0f172a; }
   --background-activated: #14943f;
 }
 
+.pw-rules {
+  font-size: 12px;
+  margin: 6px 2px 0;
+  color: #6b7280;      /* gris */
+  line-height: 1.3;
+}
+.pw-rules .ok {
+  color: #16a34a;      /* verde éxito */
+  font-weight: 600;
+}
+
 /* Bloque acceso admin */
 .admin-quick {
   display:flex;
