@@ -1,0 +1,190 @@
+<ion-header class="site-header">
+  <ion-toolbar color="light">
+    <div class="container navbar">
+      <div class="brand">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        <span>Hotel Pacific Reef</span>
+      </div>
+      <nav class="menu">
+        <a routerLink="/home" routerLinkActive="active">Home</a>
+        <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
+        <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+        <span *ngIf="currentEmail" class="user-pill">Hola, <b>{{ currentEmail }}</b></span>
+        <a href="#" class="logout" (click)="logout($event)">Cerrar sesión</a>
+      </nav>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="site-content ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Confirmación de Reserva</ion-card-title>
+      <ion-card-subtitle>Complete sus datos de contacto y pago</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Resumen de reserva -->
+      <ion-list-header>
+        <ion-label>Resumen de su reserva</ion-label>
+      </ion-list-header>
+      
+      <ion-item>
+        <ion-label>
+          <h3>{{ habitacion?.nombre }}</h3>
+          <p>{{ habitacion?.tipo | titlecase }} • {{ habitacion?.camas || '—' }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Check-in</ion-label>
+        <ion-note slot="end">{{ llegada | date:'dd/MM/yyyy' }} (14:00)</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Check-out</ion-label>
+        <ion-note slot="end">{{ salida | date:'dd/MM/yyyy' }} (12:00)</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Noches</ion-label>
+        <ion-note slot="end">{{ noches || 0 }} {{ (noches || 0) === 1 ? 'noche' : 'noches' }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Precio por noche</ion-label>
+        <ion-note slot="end">{{ currency(habitacion?.precioNoche) }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label><strong>Total estadía</strong></ion-label>
+        <ion-note slot="end"><strong>{{ currency(totalEstadia) }}</strong></ion-note>
+      </ion-item>
+
+      <!-- Información de contacto -->
+      <ion-list-header>
+        <ion-label>Información de contacto</ion-label>
+      </ion-list-header>
+
+      <form [formGroup]="contactForm">
+        <ion-item>
+          <ion-label position="stacked">Nombre completo *</ion-label>
+          <ion-input formControlName="nombre" type="text" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Email *</ion-label>
+          <ion-input formControlName="email" type="email" required></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Teléfono *</ion-label>
+          <ion-input formControlName="telefono" type="tel" required></ion-input>
+        </ion-item>
+      </form>
+
+      <!-- Opciones de pago -->
+      <ion-list-header>
+        <ion-label>Opciones de pago</ion-label>
+      </ion-list-header>
+
+      <ion-radio-group [(ngModel)]="opcionPago" (ionChange)="calcularPago()">
+        <ion-item>
+          <ion-label>Pago completo (100%)</ion-label>
+          <ion-radio slot="start" value="completo"></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Pago inicial (30%) - Restante al check-in</ion-label>
+          <ion-radio slot="start" value="parcial"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
+
+      <!-- Resumen de pago -->
+      <ion-item *ngIf="opcionPago">
+        <ion-label>
+          <h3>Monto a pagar</h3>
+          <p *ngIf="opcionPago === 'parcial'">(30% de la estadía)</p>
+        </ion-label>
+        <ion-note slot="end" color="primary">
+          <strong>{{ montoAPagar | currency:'CLP':'symbol':'1.0-0' }}</strong>
+        </ion-note>
+      </ion-item>
+
+      <!-- Método de pago -->
+      <ion-list-header *ngIf="opcionPago">
+        <ion-label>Método de pago</ion-label>
+      </ion-list-header>
+
+      <ion-segment [(ngModel)]="metodoPago" *ngIf="opcionPago">
+        <ion-segment-button value="transferencia">
+          <ion-label>Transferencia</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="tarjeta">
+          <ion-label>Tarjeta</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <!-- Datos de transferencia -->
+      <div *ngIf="opcionPago && metodoPago === 'transferencia'">
+        <ion-item>
+          <ion-label>
+            <h3>Banco de Chile</h3>
+            <p>Cuenta Corriente: 1234567890</p>
+            <p>RUT: 11.345.688-9</p>
+            <p>Email: transferencias@pacificreef.cl</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Número de comprobante *</ion-label>
+          <ion-input [(ngModel)]="comprobanteTransferencia" type="text"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Datos de tarjeta -->
+      <div *ngIf="opcionPago && metodoPago === 'tarjeta'">
+        <ion-item>
+          <ion-label position="stacked">Número de tarjeta *</ion-label>
+          <ion-input [(ngModel)]="tarjetaNumero" type="text" placeholder="1234 5678 9012 3456"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Nombre en tarjeta *</ion-label>
+          <ion-input [(ngModel)]="tarjetaNombre" type="text"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Fecha expiración *</ion-label>
+          <ion-input [(ngModel)]="tarjetaExpiracion" type="text" placeholder="MM/AA"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">CVV *</ion-label>
+          <ion-input [(ngModel)]="tarjetaCVV" type="text" placeholder="123"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Botón de confirmación -->
+      <ion-button 
+        expand="block" 
+        color="success" 
+        class="ion-margin-top"
+        [disabled]="!formularioValido()"
+        (click)="confirmarPago()">
+        Confirmar y Pagar
+      </ion-button>
+
+      <ion-note color="medium">
+        * Al confirmar, recibirá un correo electrónico con los detalles de su reserva.
+      </ion-note>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Hotel Pacific Reef — Todos los derechos reservados</p>
+    </div>
+  </footer>
+</ion-content>

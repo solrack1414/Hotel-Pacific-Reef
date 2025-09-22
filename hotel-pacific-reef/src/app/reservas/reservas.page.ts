@@ -83,7 +83,6 @@ export class ReservasPage implements OnInit {
     this.noches = 0;
 
     if (this.llegada && this.salida) {
-      // llegada debe ser < salida
       if (this.llegada >= this.salida) {
         this.errorMsg = 'La salida debe ser posterior a la llegada.';
         return;
@@ -93,11 +92,16 @@ export class ReservasPage implements OnInit {
         return;
       }
 
-      // Noches usando solo fechas (check-in 14:00, check-out 12:00 no cambian el conteo)
-      this.noches = this.diffNights(this.llegada, this.salida);
-      if (this.noches <= 0) this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
-    }
+
+    // Calculate nights correctly
+    const start = new Date(this.llegada);
+    const end = new Date(this.salida);
+    const timeDiff = end.getTime() - start.getTime();
+    this.noches = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    if (this.noches <= 0) this.errorMsg = 'La estadía debe ser de al menos 1 noche.';
   }
+}
 
   async reservar(h: Habitacion) {
     if (!this.llegada || !this.salida || this.noches <= 0) {
@@ -105,23 +109,15 @@ export class ReservasPage implements OnInit {
     }
     if (!h.disponible) return this.msg('Esta habitación no está disponible.', 'medium');
 
-    const noches = this.diffNights(this.llegada, this.salida);
-    const total = h.precioNoche * noches;
-
-    this.authDb.addReservation({
-      email: this.currentEmail!,
-      habitacionId: h.id,
-      nombreHabitacion: h.nombre,
-      tipo: h.tipo,
-      // guardamos fecha con hora de política (opcional)
-      llegada: this.asCheckIn(this.llegada),   // YYYY-MM-DDT14:00:00
-      salida:  this.asCheckOut(this.salida),   // YYYY-MM-DDT12:00:00
-      noches,
-      precioNoche: h.precioNoche,
-      total
+    // Redirigir al portal de pago con los datos de la reserva
+    this.nav.navigateForward('/portal-pago', {
+      state: {
+        habitacion: h,
+        llegada: this.llegada,
+        salida: this.salida,
+        noches: this.noches
+      }
     });
-
-    this.msg('Reserva guardada ✅', 'success');
   }
 
   // ===== Helpers fechas =====

@@ -14,6 +14,6 @@ export const routes: Routes = [
   { path: 'admin/reportes', loadComponent: () => import('./pages/admin-reportes/admin-reportes.page').then(m => m.AdminReportesPage) },
   { path: 'admin/usuarios', loadComponent: () => import('./pages/admin-usuarios/admin-usuarios.page').then(m => m.AdminUsuariosPage) },
   { path: 'admin', loadComponent: () => import('./pages/admin/admin.page').then(m => m.AdminPage) },
-  { path: 'admin/habitaciones', loadComponent: () => import('./pages/admin-habitaciones/admin-habitaciones.page').then(m => m.AdminHabitacionesPage) }
-
+  { path: 'admin/habitaciones', loadComponent: () => import('./pages/admin-habitaciones/admin-habitaciones.page').then(m => m.AdminHabitacionesPage) },
+  { path: 'portal-pago', loadComponent: () => import('./portal-pago/portal-pago.page').then(m => m.PortalPagoPage) }
 ];
