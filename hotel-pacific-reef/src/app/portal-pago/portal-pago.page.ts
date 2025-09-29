@@ -10,6 +10,8 @@ import {
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthDbService, Habitacion } from '../services/auth-db.service';
+import { TranslationService } from '../services/translation.service'; 
+import { TranslatePipe } from '../pipes/translate.pipe'; 
 
 @Component({
   selector: 'app-portal-pago',
@@ -20,7 +22,8 @@ import { AuthDbService, Habitacion } from '../services/auth-db.service';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    TranslatePipe 
   ],
   templateUrl: './portal-pago.page.html',
   styleUrls: ['./portal-pago.page.scss']
@@ -65,7 +68,8 @@ export class PortalPagoPage implements OnInit {
     private loading: LoadingController,
     private alert: AlertController,
     private nav: NavController,
-    private router: Router
+    private router: Router,
+    private translationService: TranslationService
   ) {}
 
   async ngOnInit() {

@@ -4,11 +4,13 @@ import { IonicModule, ToastController, NavController, LoadingController } from '
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthDbService, Habitacion, RoomType } from '../services/auth-db.service';
+import { TranslationService } from '../services/translation.service'; // Importar el servicio de traducción
+import { TranslatePipe } from '../pipes/translate.pipe'; // Importar el pipe
 
 @Component({
   selector: 'app-reservas',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, RouterLink],
+  imports: [CommonModule, IonicModule, FormsModule, RouterLink, TranslatePipe], // Agregar TranslatePipe
   templateUrl: './reservas.page.html',
   styleUrls: ['./reservas.page.scss'],
 })
@@ -50,7 +52,8 @@ export class ReservasPage implements OnInit {
     private authDb: AuthDbService,
     private toast: ToastController,
     private nav: NavController,
-    private loading: LoadingController
+    private loading: LoadingController,
+    private translationService: TranslationService
   ) {}
 
   async ngOnInit() {

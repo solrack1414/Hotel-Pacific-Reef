@@ -4,6 +4,8 @@ import { IonicModule, NavController, AlertController, ToastController } from '@i
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';           
 import { AuthDbService, Reserva } from '../services/auth-db.service';
+import { TranslationService } from '../services/translation.service'; 
+import { TranslatePipe } from '../pipes/translate.pipe';
 
 @Component({
   selector: 'app-perfil',
@@ -13,7 +15,8 @@ import { AuthDbService, Reserva } from '../services/auth-db.service';
     IonicModule,
     FormsModule,          
     RouterLink,
-    RouterLinkActive      
+    RouterLinkActive,
+    TranslatePipe
   ],
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss']
@@ -21,7 +24,7 @@ import { AuthDbService, Reserva } from '../services/auth-db.service';
 export class PerfilPage implements OnInit {
   email: string | null = null;
   reservas: Reserva[] = [];
-
+  selectedLanguage = 'es';
 
   editOpen = false;
   editReserva: Reserva | null = null;
@@ -33,6 +36,7 @@ export class PerfilPage implements OnInit {
 
   constructor(
     private authDb: AuthDbService,
+    private translationService: TranslationService,
     private nav: NavController,
     private alert: AlertController,
     private toast: ToastController
@@ -45,10 +49,19 @@ export class PerfilPage implements OnInit {
       this.nav.navigateRoot('/login');
       return;
     }
+    
+    this.selectedLanguage = this.translationService.getCurrentLang();
+    
     const hoy = new Date();
     this.minDate = this.toISO(this.addDays(hoy, 5));
     this.maxDate = this.toISO(this.addDays(hoy, 365));
     this.load();
+  }
+
+  changeLanguage() {
+    this.translationService.setLanguage(this.selectedLanguage);
+    // Recargar para aplicar cambios en toda la app
+    window.location.reload();
   }
 
   load() {
@@ -88,6 +101,7 @@ export class PerfilPage implements OnInit {
     this.editError = '';
     this.editOpen = true;
   }
+  
   cerrarEditar() {
     this.editOpen = false;
     this.editReserva = null;
@@ -104,8 +118,8 @@ export class PerfilPage implements OnInit {
   }
   
   trackById(index: number, item: Reserva) {
-  return item.id;
-}
+    return item.id;
+  }
 
   async guardarEdicion() {
     if (!this.editReserva) return;
@@ -125,7 +139,10 @@ export class PerfilPage implements OnInit {
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   }
+  
   private addDays(base: Date, days: number) {
-    const d = new Date(base); d.setDate(d.getDate() + days); return d;
+    const d = new Date(base); 
+    d.setDate(d.getDate() + days); 
+    return d;
   }
 }
